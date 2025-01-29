@@ -1,6 +1,12 @@
-import{ CSSProperties, useEffect, useState } from 'react';
+import React from 'react';
+import{ CSSProperties} from 'react';
 
 import { useCSVReader } from 'react-papaparse';
+
+export interface Props{
+  curve: {name:String, I:number, q:number}[],
+  setCurve: React.Dispatch<React.SetStateAction<{name:String, I:number, q:number}[]>>
+}
 
 const styles = {
   csvReader: {
@@ -17,26 +23,26 @@ const styles = {
   } as CSSProperties,
 };
 
-export default function CSVReader() {
+export default function CSVReader(props:Props) {
   const { CSVReader } = useCSVReader();
-  const [curve, setCurve] = useState<String[][] | null>(null);
   const element = document.getElementById("remover");
-  element?.addEventListener("click", clearCurve);
-  function clearCurve(){
-    setCurve(null);
+  if(element?.getAttribute("clearListener")!=="true"){
+    element?.addEventListener("click", clearCurve);
+    element?.setAttribute("clearListener", "true");
   }
-  useEffect(()=>{
-    console.log(curve)
-  },[curve])
+  
+  function clearCurve(){
+    props.setCurve([]);
+  }
   return (
     <CSVReader
       onUploadAccepted={(results: any) => {
         console.log(results);
-        if(results?.data !== null) setCurve(results?.data);
-      }}
-      onUploadRejected={(results: any) => {
-        console.log(results);
-        if(results?.data !== null) setCurve(results?.data);
+        if(results?.data !== null) props.setCurve(results?.data.slice(1).map((x: string[]) => {return {
+          name: x[0],
+          I: parseFloat(x[1]),
+          q: parseFloat(x[2])
+        }}));
       }}
     >
       {({
