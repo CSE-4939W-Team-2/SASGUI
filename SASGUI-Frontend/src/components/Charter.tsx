@@ -1,11 +1,8 @@
-
-import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, TooltipProps } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { useRecoilValue } from 'recoil';
+import { csvCurve } from './CSVReader';
 
-export interface Props{
-    curve: {name:String, I:number, q:number}[];
-}
 const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
         return (
@@ -17,11 +14,8 @@ const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {
           );
     }
 }
-export default function Charter(props:Props){
-    const [data, setData] = useState<{name:String, I:number, q:number}[]>([])
-    useEffect(() => {
-        setData(props.curve)
-    },[props])
+export default function Charter(){
+    const data = useRecoilValue(csvCurve);
     return(
     <LineChart width={1200} height={600} data={data}>
         <Line type="monotone" dataKey="I" stroke="#8884d8" />
@@ -31,8 +25,12 @@ export default function Charter(props:Props){
             position: 'left',
             offset: 0,}}
             tick={false}
+            type="number"
+            domain={['dataMin','dataMax']}
+            scale="log"
         />
-        <XAxis label={"q"} dataKey={"q"} tick={false}/>
+        <XAxis label={"q"} dataKey={"q"} tick={false} type="number" 
+        domain={['dataMin','dataMax']} scale="log"/>
         <Tooltip content={<SASTooltip/>}/>
     </LineChart>
     )

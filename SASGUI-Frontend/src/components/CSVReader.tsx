@@ -1,12 +1,8 @@
-import React from 'react';
 import{ CSSProperties} from 'react';
 
 import { useCSVReader } from 'react-papaparse';
+import { atom, useRecoilState } from 'recoil';
 
-export interface Props{
-  curve: {name:String, I:number, q:number}[],
-  setCurve: React.Dispatch<React.SetStateAction<{name:String, I:number, q:number}[]>>
-}
 
 const styles = {
   csvReader: {
@@ -23,27 +19,38 @@ const styles = {
   } as CSSProperties,
 };
 
-export default function CSVReader(props:Props) {
+export interface csvCurveData {name:String, I:number, q:number};
+
+export const csvCurve = atom({
+  key: 'csvCurveData',
+  default: [] as csvCurveData[]
+});
+
+export default function CSVReader() {
+  const [curve, setCurve] = useRecoilState(csvCurve);
   const { CSVReader } = useCSVReader();
   const element = document.getElementById("remover");
   if(element?.getAttribute("clearListener")!=="true"){
     element?.addEventListener("click", clearCurve);
     element?.setAttribute("clearListener", "true");
   }
-  
   function clearCurve(){
-    props.setCurve([]);
+    setCurve([]);
   }
   return (
     <CSVReader
       onUploadAccepted={(results: any) => {
-        console.log(results);
-        if(results?.data !== null) props.setCurve(results?.data.slice(1).map((x: string[]) => {return {
+        if(results?.data !== null) {
+          let resCurve = results?.data.map((x: string[]) => {return {
           name: x[0],
           I: parseFloat(x[1]),
           q: parseFloat(x[2])
-        }}));
-      }}
+          }})
+          resCurve = resCurve.filter((x:{name:String, I:number, q:number}) => (!Number.isNaN(x.I) && typeof x.I !== 'string') || (!Number.isNaN(x.q) && typeof x.q !== 'string'))
+          setCurve(resCurve)
+        }
+        }
+      }
     >
       {({
         getRootProps,
