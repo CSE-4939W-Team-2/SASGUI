@@ -12,6 +12,8 @@ const styles = {
   } as CSSProperties,
   browseFile: {
     width: '100%',
+    marginRight:'5px',
+    height:"70px"
   } as CSSProperties,
   remove: {
     padding: '0 20px',

@@ -8,7 +8,7 @@ import React from 'react';
 const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
         return (
-            <div className="sas-tooltip" style={{backgroundColor:"black", textAlign:"left"}}>
+            <div className="sas-tooltip" style={{backgroundColor:"#DDDDDD", textAlign:"left"}}>
               <p>{`Point Number: ${payload[0].payload.name}`}</p>
               <p>{`Intensity: ${payload[0].payload.I}`}</p>
               <p>{`Q: ${payload[0].payload.q}`}</p>
@@ -136,8 +136,12 @@ export default function Charter(){
         }));
       };
       const component = (
-        <div className="highlight-bar-charts" style={{ userSelect: "none", width:"1200px"}}>
-          <ResponsiveContainer height={600} width="100%">
+        <div className="highlight-bar-charts" style={{ display:"flex", userSelect: "none", width:"70vw", 
+        backgroundColor:"#EEEEEE", alignItems:"center", flexDirection:"column"}}>
+            <button type="button" className="btn update" onClick={() => zoomOut()}>
+            Zoom Out
+            </button>
+          <ResponsiveContainer height={300} width="95%">
             <LineChart
               // width={800}
               // height={400}
@@ -196,9 +200,6 @@ export default function Charter(){
       );
     return(
         <React.Fragment>
-            <button type="button" className="btn update" onClick={() => zoomOut()}>
-            Zoom Out
-            </button>
             {component}
         </React.Fragment>
     )
