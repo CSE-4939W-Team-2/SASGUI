@@ -1,13 +1,11 @@
 import './App.css'
-import CSVReader from './components/CSVReader'
-import Charter from './components/Charter'
 import { RecoilRoot } from 'recoil'
+import Page from './components/Page'
 
 function App() {
   return (
     <RecoilRoot>
-      <CSVReader/>
-      <Charter></Charter>
+      <Page/>
     </RecoilRoot>
   )
 }

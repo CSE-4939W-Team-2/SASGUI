@@ -35,6 +35,7 @@ export default function CSVReader() {
     element?.setAttribute("clearListener", "true");
   }
   function clearCurve(){
+    console.log(curve);
     setCurve([]);
   }
   return (
