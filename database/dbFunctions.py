@@ -1,4 +1,4 @@
-import sqlite3 
+import sqlite3
 import json
 
 db_name = 'SDPDatabase.sqlite'
@@ -25,14 +25,21 @@ def delete_row(db_name, table_name, column_name, value):
     conn.close()
 
 'Queries table and returns matching rows'
-def query_table(db_name, table_name, condition='1=1'):
-    '1=1 is the default which checks all rows'
+def query_table(db_name, table_name, column_name=None, value=None):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    cursor.execute(f'SELECT * FROM {table_name} WHERE {condition}')
+
+    if column_name and value:
+        query = f"SELECT * FROM {table_name} WHERE {column_name} = ?"
+        cursor.execute(query, (value,))
+    else:
+        query = f"SELECT * FROM {table_name}"
+        cursor.execute(query)
+
     results = cursor.fetchall()
     conn.close()
     return results
+
 
 'Adds a user to the users table'
 def add_to_users(user_id):
@@ -43,3 +50,18 @@ def add_to_scans(user_id, file_path, curve_type, parameter_dict):
     parameters_json = json.dumps(parameter_dict)
     new_values = (user_id, file_path, curve_type, parameters_json)
     add_to_table(db_name, user_table, new_values)
+
+'Retrieves all scans for a specific user_id'
+def get_user_scans(user_id):
+    return query_table(db_name, "scans", "UserID", user_id)
+
+'Retrieves all scans that match the curve_type'
+def get_scans_by_curve(curve_type):
+    return query_table(db_name, "scans", "CurveType", curve_type)
+
+'Retrieves the scan parameters and converts into a dictionary'
+def get_scan_parameters(scan_id):
+    result = query_table(db_name, "scans", "ScanID", scan_id)
+    if result:
+        return json.loads(result[0][-1])  # Last column contains JSON
+    return None
