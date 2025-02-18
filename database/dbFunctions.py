@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import time
 
 db_name = 'SDPDatabase.sqlite'
 user_table = 'users'
@@ -47,9 +48,11 @@ def add_to_users(user_id):
     
 'Adds a scan along with parameters to the scans table'
 def add_to_scans(user_id, file_path, curve_type, parameter_dict):
+    timestamp = int(time.time())  # Gets current timestamp
+    unique_filename = f"{timestamp}_{file_path}"
     parameters_json = json.dumps(parameter_dict)
-    new_values = (user_id, file_path, curve_type, parameters_json)
-    add_to_table(db_name, user_table, new_values)
+    new_values = (user_id, unique_filename, curve_type, parameters_json)
+    add_to_table(db_name, scans_table, new_values)
 
 'Retrieves all scans for a specific user_id'
 def get_user_scans(user_id):
