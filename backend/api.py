@@ -1,24 +1,23 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
-
+cors = CORS(app, resources={r"/*": {"origins":"http://localhost:5173"}})
 # TODO: database connection
 DATABASE = {}
 
 # FIle Handling
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """Handles file upload."""
     if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+        return jsonify({'message': 'No file part in the request'}), 400
     file = request.files['file']
-    filepath = os.path.join("uploads", file.filename)
-    
-    # TODO: Save file to gibven path
-    file.save(filepath)
-    
-    return jsonify({"message": "File uploaded successfully", "filepath": filepath})
+    if file.filename == '':
+        return jsonify({'message': 'No file selected for uploading'}), 400
+    if file:
+        file.save(os.path.join("./", file.filename))
+        return jsonify({'message': 'File successfully uploaded'}), 200
 
 
 # Param Updates, dont think we use this

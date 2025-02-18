@@ -1,7 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, TooltipProps, ReferenceArea, ResponsiveContainer } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { useRecoilValue } from 'recoil';
-import { csvCurve } from './CSVReader';
+import { csvCurve } from './CSVFileReader';
 import { useEffect, useState } from 'react';
 import React from 'react';
 

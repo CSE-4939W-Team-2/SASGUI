@@ -1,5 +1,5 @@
 import Charter from "./Charter";
-import CSVReader from "./CSVReader";
+import CSVReader from "./CSVFileReader";
 import mockSlider from '../assets/mockSlider.png';
 import mock3d from '../assets/mock3d.png';
 import PerformanceToggle from "./PerformanceToggle";
@@ -9,6 +9,7 @@ import SaveRemote from "./SaveRemote";
 import LoadLocal from "./LoadLocal";
 import LoadRemote from "./LoadRemote";
 import MorphologySwitcher from "./MorphologySwitcher";
+import CSVFileReader from "./CSVFileReader";
 export default function Page(){
     return(
     <div style={{display:"flex", flexDirection:"column"}}>
@@ -16,7 +17,7 @@ export default function Page(){
             <MorphologySwitcher/>
             <div style={{display:"flex", flexDirection:"column", marginRight:"20px"}}>
                 <PerformanceToggle/>
-                <CSVReader/>
+                <CSVFileReader></CSVFileReader>
             </div>
             <MLButton/>
         </div>

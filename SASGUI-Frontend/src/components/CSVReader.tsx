@@ -1,4 +1,4 @@
-import{ CSSProperties} from 'react';
+/*import{ CSSProperties} from 'react';
 
 import { useCSVReader } from 'react-papaparse';
 import { atom, useRecoilState } from 'recoil';
@@ -43,6 +43,7 @@ export default function CSVReader() {
   return (
     <CSVReader
       onUploadAccepted={(results: any) => {
+        console.log(results);
         if(results?.data !== null) {
           let resCurve = results?.data.map((x: string[]) => {return {
           name: x[0],
@@ -51,6 +52,7 @@ export default function CSVReader() {
           }})
           resCurve = resCurve.filter((x:{name:String, I:number, q:number}) => (!Number.isNaN(x.I) && typeof x.I !== 'string') || (!Number.isNaN(x.q) && typeof x.q !== 'string'))
           setCurve(resCurve)
+          console.log(resCurve)
         }
         }
       }
@@ -73,4 +75,4 @@ export default function CSVReader() {
       )}
     </CSVReader>
   );
-}
+}*/
