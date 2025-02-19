@@ -9,7 +9,11 @@ export default function MLButton() {
             formData.append('file', csv);
             fetch('http://localhost:5000/upload', {
                 method: 'POST',
-                body: formData
+                mode:'cors',
+                body: formData,
+                headers: {
+                  "Access-Control-Allow-Origin":"*"
+                }
               })
               .then(response => response.json())
               .then(data => {

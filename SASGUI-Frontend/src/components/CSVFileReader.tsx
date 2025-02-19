@@ -2,10 +2,12 @@ import Papa from 'papaparse';
 import{useRef, useState} from 'react';
 
 import { atom, useRecoilState } from 'recoil';
+//Atom that stores the csv curve data as used by the graph
 export const csvCurve = atom({
   key: 'csvCurveData',
   default: [] as csvCurveData[]
 });
+//Atom that stores the CSV file itselt
 export const csvFile = atom({
     key: 'csvFileData',
     default: null as File | null
