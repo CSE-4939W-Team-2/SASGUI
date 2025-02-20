@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import os
+from database.dbFunctions import add_to_scans, get_user_scans
 
 app = Flask(__name__)
 
@@ -70,21 +71,30 @@ def get_3d_model():
 def save_to_database():
     """Saves prediction or curve data to the database."""
     data = request.json
-    
-    # TODO: Implement database save logic
-    DATABASE["latest"] = data  # test database save
-    
+    user_id = data.get("user_id")
+    file_path = data.get("file_path")
+    curve_type = data.get("curve_type")
+    parameters = data.get("parameters")  # Expected to be a dictionary
+
+    if not all([user_id, file_path, curve_type, parameters]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    add_to_scans(user_id, file_path, curve_type, parameters)
+
     return jsonify({"message": "Data saved successfully"})
 
 
 @app.route('/get_database_data', methods=['GET'])
 def get_database_data():
     """Retrieves data from the database."""
-    
-    # TODO: Implement database retrieval logic
-    stored_data = DATABASE.get("latest", {})
-    
-    return jsonify({"message": "Data retrieved", "data": stored_data})
+    user_id = request.args.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+
+    scans = get_user_scans(user_id)
+
+    return jsonify({"message": "Data retrieved", "scans": scans})
 
 
 # Output and Visualization
