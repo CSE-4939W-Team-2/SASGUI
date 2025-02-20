@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify
 import os
+import dbFunctions
+
 
 app = Flask(__name__)
-
-# TODO: database connection
-DATABASE = {}
 
 # FIle Handling
 @app.route('/upload', methods=['POST'])
@@ -70,9 +69,13 @@ def get_3d_model():
 def save_to_database():
     """Saves prediction or curve data to the database."""
     data = request.json
+    if "curveType" in data: #We only have 2 tables, and if curveType is included within the dictionary, we assume that we're adding to the scans table, otherwise we add to users.
+        dbFunctions.add_to_scans()
+    else:
+        dbFunctions.add_to_users()
+        
     
-    # TODO: Implement database save logic
-    DATABASE["latest"] = data  # test database save
+    
     
     return jsonify({"message": "Data saved successfully"})
 
