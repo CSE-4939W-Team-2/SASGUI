@@ -14,7 +14,7 @@ export const csvFile = atom({
 })
 export interface csvCurveData {name:String, I:number, q:number};
 export default function CSVFileReader() {
-    const inputRef = useRef< HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('Upload File');
     const [file,setFile] = useRecoilState(csvFile);
     const [curve, setCurve] = useRecoilState(csvCurve);

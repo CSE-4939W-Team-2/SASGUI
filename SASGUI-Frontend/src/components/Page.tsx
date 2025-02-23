@@ -1,6 +1,4 @@
 import Charter from "./Charter";
-import CSVReader from "./CSVFileReader";
-import mockSlider from '../assets/mockSlider.png';
 import mock3d from '../assets/mock3d.png';
 import PerformanceToggle from "./PerformanceToggle";
 import MLButton from "./MLButton";
@@ -10,7 +8,24 @@ import LoadLocal from "./LoadLocal";
 import LoadRemote from "./LoadRemote";
 import MorphologySwitcher from "./MorphologySwitcher";
 import CSVFileReader from "./CSVFileReader";
-export default function Page(){
+import ParameterSlider from "./ParameterSlider.js";
+import { RecoilState } from "recoil";
+import { useEffect } from "react";
+export interface sliderObj {
+    label: string,
+    minVal: number,
+    maxVal: number,
+    step: number,
+    atomic: RecoilState<number>
+}
+interface Props {
+    sliderArray:sliderObj[],
+    title: string
+}
+export default function Page(props:Props){
+    useEffect(() => {
+        document.title=props.title
+    },[props.title])
     return(
     <div style={{display:"flex", flexDirection:"column"}}>
         <div style={{display:"flex", justifyContent:"right"}}>
@@ -32,15 +47,18 @@ export default function Page(){
         </div>
         
         <div style={{display:"flex", flexDirection:"row"}}>
-            <div style={{display:"flex", flexDirection: "column", marginRight:"100px"}}>
-                <img src={mockSlider}/>
-                <img src={mockSlider}/>
-                <img src={mockSlider}/>
-            </div>
-            <div style={{display:"flex", flexDirection: "column", marginRight:"100px"}}>
-                <img src={mockSlider}/>
-                <img src={mockSlider}/>
-                <img src={mockSlider}/>
+            <div style={{
+                    display:"grid",
+                    gridTemplateColumns: "50% 50%",
+                    gap: "10px",
+                    margin: "10px"
+                }}>
+                {props.sliderArray.map((sliderFields:sliderObj, i)=> {
+                    return(
+                        <ParameterSlider key={i} label={sliderFields.label} minVal={sliderFields.minVal} maxVal={sliderFields.maxVal}
+                        step={sliderFields.step} atomic={sliderFields.atomic}/>
+                    )
+                })}
             </div>
             <img src={mock3d} style={{height:"250px"}}/>
         </div>
