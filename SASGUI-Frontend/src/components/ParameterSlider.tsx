@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RecoilState, useRecoilState } from "recoil";
 
 interface Props {
@@ -8,7 +8,6 @@ interface Props {
     step: number,
     atomic: RecoilState<number>
 }
-
 export default function ParameterSlider(props:Props){
     const [value, setValue] = useRecoilState(props.atomic);//Get the atom of state for the slider
     const [boxValue, setBoxValue] = useState(value.toString()); //Text box value (separate to allow correcting overflow without affecting state)
@@ -17,6 +16,9 @@ export default function ParameterSlider(props:Props){
         setValue(newValue);
         setBoxValue(newValue.toString());
     }
+    useEffect(()=>{
+        setBoxValue(value.toString());//Make sure value gets set correctly when changing pages
+    },[props])
     const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if(event.target.value !== ""){//Check if box is empty
             const newValue = parseFloat(event.target.value);
