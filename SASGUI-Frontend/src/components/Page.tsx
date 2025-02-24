@@ -24,7 +24,7 @@ interface Props {
 }
 export default function Page(props:Props){
     useEffect(() => {
-        document.title=props.title
+        document.title=props.title//Set the webpage title when it changes
     },[props.title])
     return(
     <div style={{display:"flex", flexDirection:"column"}}>

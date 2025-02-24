@@ -5,7 +5,7 @@ import { csvCurve } from './CSVFileReader';
 import { useEffect, useState } from 'react';
 import React from 'react';
 
-const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {
+const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//Function for the tooltip
     if (active && payload && payload.length) {
         return (
             <div className="sas-tooltip" style={{backgroundColor:"#DDDDDD", textAlign:"left"}}>

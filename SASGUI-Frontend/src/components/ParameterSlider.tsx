@@ -10,31 +10,31 @@ interface Props {
 }
 
 export default function ParameterSlider(props:Props){
-    const [value, setValue] = useRecoilState(props.atomic);
-    const [boxValue, setBoxValue] = useState(value.toString());
+    const [value, setValue] = useRecoilState(props.atomic);//Get the atom of state for the slider
+    const [boxValue, setBoxValue] = useState(value.toString()); //Text box value (separate to allow correcting overflow without affecting state)
     const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = parseFloat(event.target.value);
         setValue(newValue);
         setBoxValue(newValue.toString());
     }
     const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if(event.target.value !== ""){
+        if(event.target.value !== ""){//Check if box is empty
             const newValue = parseFloat(event.target.value);
-            if (newValue >= props.minVal && newValue<= props.maxVal){
+            if (newValue >= props.minVal && newValue<= props.maxVal){//Check if in range
                 setValue(newValue);
                 setBoxValue(newValue.toString());
             }
-            else if (newValue < props.minVal){
+            else if (newValue < props.minVal){//Value too low, set to min
                 setValue(props.minVal);
                 setBoxValue(props.minVal.toString());
             }
-            else {
+            else {//Value too high, set to max
                 setValue(props.maxVal);
                 setBoxValue(props.maxVal.toString());
             }
         }
         else{
-            setBoxValue(event.target.value)
+            setBoxValue(event.target.value)//To allow box to be empty
         }
     }
     return(

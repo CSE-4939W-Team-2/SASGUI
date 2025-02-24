@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import { sliderObj } from "../components/Page";
-
+//For each slider, define an "atom" with a unique name and key, with a default value
 export const cylinderLength = atom({
     key: 'cylinderLength',
     default: 0
@@ -29,7 +29,7 @@ export const cylinderScale = atom({
     key: 'cylinderScale',
     default: 0.001
 })
-
+//For each slider, create an object in this array that has a label, min and max value, step (increment), and the atom for the slider
 export const cylinderSliders:sliderObj[] = [
     {
         label: "Length",

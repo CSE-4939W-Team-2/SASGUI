@@ -2,7 +2,7 @@ import { atom } from "recoil";
 
 export const currentMorphology = atom({
     key: 'currentMorphology',
-    default: "/"
+    default: "/"//Default is base link
 })
 
 export interface morphologyType {
@@ -10,6 +10,9 @@ export interface morphologyType {
     text: string
 }
 export const morphologyValues:morphologyType[] = [
+    //NOTE: the value must be the same as the react router path, with a "/" in front.
+    //If react router path for morphology page is "sphere" then value must be "/sphere"
+    //Each of these morphology values should have their own template file
     {
         value: "/sphere",
         text: "Sphere"

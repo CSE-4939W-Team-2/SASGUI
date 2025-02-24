@@ -4,15 +4,15 @@ import { csvFile } from "./CSVFileReader";
 export default function MLButton() {
     const csv = useRecoilValue(csvFile);
     const sendData = async () => {
-        if(csv !== null){
-            const formData = new FormData();
+        if(csv !== null){//If the csv data file is not null (if it exists)
+            const formData = new FormData();//Add the CSV file to the request
             formData.append('file', csv);
-            fetch('http://localhost:5000/upload', {
+            fetch('http://localhost:5000/upload', {//Make the request
                 method: 'POST',
-                mode:'cors',
+                mode:'cors',//For CORSs
                 body: formData,
                 headers: {
-                  "Access-Control-Allow-Origin":"*"
+                  "Access-Control-Allow-Origin":"*"//For CORS
                 }
               })
               .then(response => response.json())

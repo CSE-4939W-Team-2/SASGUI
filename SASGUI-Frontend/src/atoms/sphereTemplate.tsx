@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import { sliderObj } from "../components/Page";
-
+//For each slider, define an "atom" with a unique name and key, with a default value
 export const sphereRadius = atom({
     key: 'sphereRadius',
     default: 0
@@ -25,7 +25,7 @@ export const sphereScale = atom({
     key: 'sphereScale',
     default: 0.001
 })
-
+//For each slider, create an object in this array that has a label, min and max value, step (increment), and the atom for the slider
 export const sphereSliders:sliderObj[] = [
     {
         label: "Radius",
