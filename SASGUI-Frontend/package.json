@@ -19,7 +19,8 @@
     "react-papaparse": "^4.4.0",
     "recharts": "^2.15.1",
     "recoil": "^0.7.7",
-    "three": "^0.173.0"
+    "three": "^0.173.0",
+    "trimesh": "^0.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
