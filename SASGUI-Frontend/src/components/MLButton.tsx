@@ -18,6 +18,7 @@ export default function MLButton() {
               .then(response => response.json())
               .then(data => {
                 console.log('Success:', data);
+                console.log(csv);
               })
               .catch(error => {
                 console.error('Error:', error);
