@@ -1,6 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from sasmodels.core import load_model
+from sasmodels.direct_model import call_kernel
+import sys
+sys.path.append('hierarchical_SAS_analysis-main 2')
+
+
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins":"http://localhost:5173"}})
@@ -18,6 +24,14 @@ def upload_file():
     if file:
         file.save(os.path.join("./", file.filename))
         return jsonify({'message': 'File successfully uploaded'}), 200
+
+@app.route("/chd", methods=['POST','GET'])
+def chd():
+    if request.method == 'POST':
+            json  = request.get_json()
+            shape = json.get('shape')
+            return startup.main(shape)
+    return {'name': 5}
 
 
 # Param Updates, dont think we use this
