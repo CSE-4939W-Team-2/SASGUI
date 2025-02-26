@@ -1,5 +1,4 @@
 import Charter from "./Charter";
-import mock3d from '../assets/mock3d.png';
 import PerformanceToggle from "./PerformanceToggle";
 import MLButton from "./MLButton";
 import SaveLocal from "./SaveLocal";
@@ -29,7 +28,7 @@ export default function Page(props:Props){
         document.title=props.title//Set the webpage title when it changes
     },[props.title])
     return(
-    <div style={{display:"flex", flexDirection:"column"}}>
+    <div style={{display:"flex", flexDirection:"column", width:"100%"}}>
         <div style={{display:"flex", justifyContent:"right"}}>
             <MorphologySwitcher/>
             <div style={{display:"flex", flexDirection:"column", marginRight:"20px"}}>
@@ -62,12 +61,14 @@ export default function Page(props:Props){
                     )
                 })}
             </div>
-            <Canvas>
-              <ambientLight intensity={Math.PI / 2} />
-              <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
-              <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-              <Box position={[-1.2, 0, 0]} />
-            </Canvas>
+            <div style={{minWidth:"0", display:"flex", width:"250px", height:"250px", marginRight:"0px", alignSelf:"center"}}>
+                <Canvas style={{}}>
+                    <ambientLight intensity={Math.PI / 2} />
+                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
+                    <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
+                    <Box position={[0, 0, 0]} />
+                </Canvas>
+            </div>
         </div>
     </div>)
 }
