@@ -49,15 +49,9 @@ def add_to_users(user_id):
 'Adds a scan along with parameters to the scans table'
 def add_to_scans(user_id, file_path, curve_type, parameter_dict):
     timestamp = int(time.time())  # Gets current timestamp
-    unique_filename = f"{timestamp}_{file_path}"
     parameters_json = json.dumps(parameter_dict)
-<<<<<<< HEAD:dbFunctions.py
     new_values = (user_id, file_path, curve_type, parameters_json)
     add_to_table(db_location, user_table, new_values)
-=======
-    new_values = (user_id, unique_filename, curve_type, parameters_json)
-    add_to_table(db_name, scans_table, new_values)
->>>>>>> 522075a53997b855869f21ba493e73ac9e0f1314:database/dbFunctions.py
 
 'Retrieves all scans for a specific user_id'
 def get_user_scans(user_id):
