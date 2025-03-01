@@ -18,21 +18,18 @@ export default function ParameterSlider(props:Props){
     }
     useEffect(()=>{
         setBoxValue(value.toString());//Make sure value gets set correctly when changing pages
-    },[props])
+    },[props, value])
     const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if(event.target.value !== ""){//Check if box is empty
             const newValue = parseFloat(event.target.value);
             if (newValue >= props.minVal && newValue<= props.maxVal){//Check if in range
                 setValue(newValue);
-                setBoxValue(newValue.toString());
             }
             else if (newValue < props.minVal){//Value too low, set to min
                 setValue(props.minVal);
-                setBoxValue(props.minVal.toString());
             }
             else {//Value too high, set to max
                 setValue(props.maxVal);
-                setBoxValue(props.maxVal.toString());
             }
         }
         else{

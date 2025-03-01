@@ -6,7 +6,8 @@ export default function MLButton() {
     const sendData = async () => {
         if(csv !== null){//If the csv data file is not null (if it exists)
             const formData = new FormData();//Add the CSV file to the request
-            formData.append('file', csv);
+            const renamed = new File([csv], Date.now().toString() + ".csv", {type: csv.type});
+            formData.append('file', renamed);
             fetch('http://localhost:5000/upload', {//Make the request
                 method: 'POST',
                 mode:'cors',//For CORSs

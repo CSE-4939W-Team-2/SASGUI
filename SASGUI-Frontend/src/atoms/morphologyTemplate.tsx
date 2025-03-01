@@ -1,4 +1,5 @@
-import { atom } from "recoil";
+import { atom, RecoilState } from "recoil";
+import { csvCurveData } from "../components/CSVFileReader";
 
 export const currentMorphology = atom({
     key: 'currentMorphology',
@@ -7,7 +8,7 @@ export const currentMorphology = atom({
 
 export interface morphologyType {
     value: string,
-    text: string
+    text: string,
 }
 export const morphologyValues:morphologyType[] = [
     //NOTE: the value must be the same as the react router path, with a "/" in front.
@@ -38,3 +39,34 @@ export const morphologyValues:morphologyType[] = [
         text: "Core-Shell-Disk"
     }
 ]
+//This is the type that defines the object used to save/load locally and remotely. Each page gets a field to store its sliders.
+//When adding a new page, make sure to add logic for saving/loading to SaveLocal/LoadLocal.tsx and SaveRemote/LoadRemote.tsx
+export interface saveLoad { 
+    fileName: string;
+    curveData: csvCurveData[];
+    morphology: string;
+    sphereData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+    coreShellSphereData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+    cylinderData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+    coreShellCylinderData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+    diskData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+    coreShellDiskData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+}

@@ -9,7 +9,7 @@ const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//F
     if (active && payload && payload.length) {
         return (
             <div className="sas-tooltip" style={{backgroundColor:"#DDDDDD", textAlign:"left"}}>
-              <p>{`Point Number: ${payload[0].payload.name}`}</p>
+              <p>{`Point Number: ${payload[0].payload[""]}`}</p>
               <p>{`Intensity: ${payload[0].payload.I}`}</p>
               <p>{`Q: ${payload[0].payload.q}`}</p>
             </div>
@@ -42,7 +42,6 @@ export default function Charter(){
         to: number,
         ref: string,
       ) => {
-        console.log(from, to);
         const refData: any[] = csvData.slice(from, to+1);
         let [bottom, top] = [refData[0][ref], refData[0][ref]];
         refData.forEach((d) => {
