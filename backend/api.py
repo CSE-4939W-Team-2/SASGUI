@@ -5,7 +5,7 @@ from sasmodels.core import load_model
 from sasmodels.direct_model import call_kernel
 import sys
 sys.path.append('hierarchical_SAS_analysis-main 2')
-
+import numpy as np
 
 
 app = Flask(__name__)
