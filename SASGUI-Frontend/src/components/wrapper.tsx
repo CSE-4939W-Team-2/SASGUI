@@ -1,4 +1,4 @@
-import { useRecoilValue } from 'recoil'
+import { atom, useRecoilValue } from 'recoil'
 import Page, { sliderObj } from '../components/Page'
 import { sphereSliders } from '../atoms/sphereTemplate'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -9,7 +9,9 @@ import { diskSliders } from '../atoms/diskTemplate';
 import { coreShellDiskSliders } from '../atoms/coreShellDiskTemplate';
 import { currentMorphology } from '../atoms/morphologyTemplate';
 import { useEffect } from 'react';
+import { csvCurve, csvCurveData } from './CSVFileReader';
 export default function Wrapper() {
+    const [curve, setCurve] = useRecoilValue(csvCurve);
     const morphology = useRecoilValue(currentMorphology);
     const sphereData:any = {morphology:"Sphere"}
     sphereSliders.map((slider:sliderObj)=>{
@@ -55,6 +57,9 @@ export default function Wrapper() {
                 break;
             case "/coreShellDisk":
                 data = coreShellDiskData
+                break;
+            case "/":
+                console.log("Default page");
                 break;
             default:
                 console.error("Not a valid morphology")

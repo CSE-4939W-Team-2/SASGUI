@@ -138,16 +138,16 @@ def process_request(json, model_name, param_mapping):
     Iq = call_kernel(kernel, pars) + 0.001
     
     return {'xval': np.array(q).tolist(), 'yval': np.array(Iq).tolist()}
-@app.route("/simulate_graph", methods=["POST"])
+"""@app.route("/simulate_graph", methods=["POST"])
 def sim_graph():
     if request.method == 'POST':
         json_data = request.get_json()
-        return(json_data)
+        return(json_data)"""
 
 def graphASphere(data):
     param_mapping = {
             'background': 'sphereBackground',
-            'polydispersity': 'spherePolydispersity',
+            'radius_pd': 'spherePolydispersity',
             'radius': 'sphereRadius',
             'scale': 'sphereScale',
             'sld': 'sphereScatteringLengthDensity',
@@ -157,21 +157,21 @@ def graphASphere(data):
 def graphACoreShellSphere(data):
     param_mapping = {
             'background': 'coreShellSphereBackground',
-            'polydispersity': 'coreShellSpherePolydispersity',
+            'radius_pd': 'coreShellSpherePolydispersity',
             'radius': 'coreShellSphereRadius',
             'scale': 'coreShellSphereScale',
             'sld_core': 'coreShellSphereScatteringLengthCore',
             'sld_shell': 'coreShellSphereScatteringLengthShell',
             'sld_solvent': 'coreShellSphereScatteringLengthSolvent',
-            'thickness': 'coreShellSpehereThickness'
+            'thickness': 'coreShellSphereThickness'
     }
-    return process_request(data, 'coreShellsphere', param_mapping)
+    return process_request(data, 'core_shell_sphere', param_mapping)
 
 def graphACylinder(data):
     param_mapping = {
             'background': 'cylinderBackground',
             'length': 'cylinderLength',
-            'polydispersity': 'cylinderPolydispersity',
+            'radius_pd': 'cylinderPolydispersity',
             'radius': 'cylinderRadius',
             'scale': 'cylinderScale',
             'sld': 'cylinderScatteringLengthDensity',
@@ -185,7 +185,7 @@ def graphACoreShellCylinder(data):
     param_mapping = {
             'backnground': 'coreShellCylinderBackground',
             'length': 'coreShellCylinderLength',
-            'polydispersity': 'coreShellCylinderPolydispersity',
+            'radius_pd': 'coreShellCylinderPolydispersity',
             'radius': 'coreShellCylinderRadius',
             'scale': 'coreShellCylinderScale',
             'sld_core': 'coreShellCylinderScatteringLengthCore',
@@ -193,31 +193,31 @@ def graphACoreShellCylinder(data):
             'sld_solvent': 'coreShellCylinderScatteringLengthSolvent',
             'thickness': 'coreShellCylinderThickness',
     }
-    return process_request(data, 'CoreShellDisk', param_mapping)
+    return process_request(data, 'core_shell_cylinder', param_mapping)
 def graphADisk(data):
     param_mapping = {
             'background': 'diskBackground',
             'length': 'diskLength',
-            'polydispersity': 'diskPolydispersity',
+            'radius_pd': 'diskPolydispersity',
             'radius': 'diskRadius',
             'scale': 'diskScale',
             'sld': 'diskScatteringLengthDensity',
             'sld_solvent': 'diskScatteringLengthSolvent'
     }
-    return process_request(data, 'Disk', param_mapping)
+    return process_request(data, 'cylinder', param_mapping)
 
 def graphACoreShellDisk(data):
     param_mapping = {
             'background': 'coreShellDiskBackground',
             'length': 'coreShellDiskLength',
-            'polydispersity': 'coreShellDiskPolydispersity',
+            'radius_pd': 'coreShellDiskPolydispersity',
             'radius': 'coreShellDiskRadius',
             'scale': 'coreShellDiskScale',
             'sld_core': 'coreShellDiskScatteringLengthCore',
             'sld_shell': 'coreShellDiskScatteringLengthShell',
             'sld_solvent': 'coreShellDiskScatteringLengthSolvent'
     }
-    return process_request(data, 'sphere', param_mapping)
+    return process_request(data, 'core_shell_cylinder', param_mapping)
 
 MORPHOLOGY_FUNCTIONS = {
     "Sphere": graphASphere,

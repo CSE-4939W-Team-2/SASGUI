@@ -10,7 +10,8 @@ const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//F
         return (
             <div className="sas-tooltip" style={{backgroundColor:"#DDDDDD", textAlign:"left"}}>
               <p>{`Point Number: ${payload[0].payload[""]}`}</p>
-              <p>{`Intensity: ${payload[0].payload.I}`}</p>
+              <p>{`Intensity (upload): ${payload[0].payload.ICsv}`}</p>
+              <p>{`Intensity (sim): ${payload[0].payload.ISim}`}</p>
               <p>{`Q: ${payload[0].payload.q}`}</p>
             </div>
           );
@@ -180,8 +181,15 @@ export default function Charter(){
               <Line
                 yAxisId="1"
                 type="monotone"
-                dataKey="I"
+                dataKey="ICsv"
                 stroke="#8884d8"
+                animationDuration={300}
+              />
+              <Line
+                yAxisId="1"
+                type="monotone"
+                dataKey="ISim"
+                stroke="#950606"
                 animationDuration={300}
               />
     

@@ -16,7 +16,7 @@ export const csvFileName = atom({
     key: 'csvFileName',
     default: "Upload File"
 })
-export interface csvCurveData {"":String, I:number, q:number};
+export interface csvCurveData {"":String, ICsv:number, ISim:number, q:number};
 export default function CSVFileReader() {
     const inputRef = useRef<HTMLInputElement>(null);//Used for file upload
     const [fileName, setFileName] = useRecoilState(csvFileName);//Tracks file name and puts it in the upload button
@@ -32,11 +32,12 @@ export default function CSVFileReader() {
                     if(results?.data !== null){
                         let resCurve = results?.data.map((x: any) => {return {//Maps the curve from string to numbers
                         "": x[0],
-                        I: parseFloat(x[1]),
+                        ICsv: parseFloat(x[1]),
+                        ISim: 0.04,
                         q: parseFloat(x[2])
                         }})
                         //Filter out any values that are null or invalid
-                        resCurve = resCurve.filter((x:{"":String, I:number, q:number}) => (!Number.isNaN(x.I) && typeof x.I !== 'string') || (!Number.isNaN(x.q) && typeof x.q !== 'string'))
+                        resCurve = resCurve.filter((x:{"":String, ICsv:number, ISim:number, q:number}) => (!Number.isNaN(x.ISim) && typeof x.ISim !== 'string') || (!Number.isNaN(x.ICsv) && typeof x.ICsv !== 'string') || (!Number.isNaN(x.q) && typeof x.q !== 'string'))
                         setCurve(resCurve)//Set the curve
                         console.log(resCurve)
                     }
