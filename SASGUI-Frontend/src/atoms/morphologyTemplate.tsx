@@ -70,3 +70,4 @@ export interface saveLoad {
         value: number;
     }[];
 }
+

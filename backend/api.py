@@ -195,12 +195,12 @@ def spheregraph():
     if request.method == 'POST':
         json_data = request.get_json()
         param_mapping = {
-            'radius': 'radius',
-            'scale': 'scale',
-            'sld': 'sld',
-            'background': 'background',
-            'radius_pd': 'pd',
-            'sld_solvent': 'solvent'
+            'radius': 'sphereRadius',
+            'scale': 'sphereScale',
+            'sld': 'sphereScatteringLengthDensity',
+            'background': 'sphereBackground',
+            'radius_pd': 'spherePolydispersity',
+            'sld_solvent': 'sphereScatteringLengthSolvent'
         }
         return process_request(json_data, 'sphere', param_mapping)
     return {'name': 5}
@@ -233,5 +233,23 @@ def cscgraph():
         }
         return process_request(json_data, 'core_shell_cylinder', param_mapping)
     return {'name': 5}
+@app.route("/simulate_graph", methods=["POST"])
+def sim_graph():
+    if request.method == 'POST':
+        json_data = request.get_json()
+        return(json_data)
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+"""def graphASphere(data):
+    param_mapping = {
+            'radius': 'sphereRadius',
+            'scale': 'sphereScale',
+            'sld': 'sphereScatteringLengthDensity',
+            'background': 'sphereBackground',
+            'radius_pd': 'spherePolydispersity',
+            'sld_solvent': 'sphereScatteringLengthSolvent'
+    }
+    return process_request(data, 'sphere', param_mapping)"""

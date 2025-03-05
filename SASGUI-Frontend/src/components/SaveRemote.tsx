@@ -1,7 +1,6 @@
 import { useRecoilValue } from "recoil";
 import { csvCurve, csvFileName } from "./CSVFileReader";
 import { currentMorphology, saveLoad } from "../atoms/morphologyTemplate";
-import { saveAs } from 'file-saver';
 import { sphereSliders } from "../atoms/sphereTemplate";
 import { sliderObj } from "./Page";
 import { coreShellSphereSliders } from "../atoms/coreShellSphereTemplate";
