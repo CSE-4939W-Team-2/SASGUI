@@ -138,106 +138,209 @@ def process_request(json, model_name, param_mapping):
     Iq = call_kernel(kernel, pars) + 0.001
     
     return {'xval': np.array(q).tolist(), 'yval': np.array(Iq).tolist()}
-
-@app.route("/graphcsd", methods=['POST','GET'])
-def chartcsd():
-    if request.method == 'POST':
-        json_data = request.get_json()
-        param_mapping = {
-            'length': 'h',
-            'radius': 'radius',
-            'background': 0.001,
-            'scale': 1,
-            'length_pd': 0.5,
-            'length_pd_type': 'schulz',
-            'length_pd_n': 40,
-            'length_pd_nsigma': 3
-        }
-        return process_request(json_data, 'cylinder', param_mapping)
-    return {'name': 5}
-
-@app.route("/csd", methods=['POST','GET'])
-def csd():
-    if request.method == 'POST':
-        json_data = request.get_json()
-        param_mapping = {
-            'length': 'h',
-            'radius': 'radius',
-            'thickness': 'thickness',
-            'sld_core': 'sldcore',
-            'sld_shell': 'sldshell',
-            'sld_solvent': 'sldsolvent',
-            'background': 'background',
-            'scale': 'scale',
-            'length_pd': 'pd'
-        }
-        return process_request(json_data, 'core_shell_cylinder', param_mapping)
-    return {'name': 5}
-
-@app.route("/graph", methods=['POST','GET'])
-def chart():
-    if request.method == 'POST':
-        json_data = request.get_json()
-        param_mapping = {
-            'length': 'h',
-            'radius': 'radius',
-            'scale': 'scale',
-            'sld': 'sld',
-            'sld_solvent': 'sldsolvent',
-            'background': 'background',
-            'length_pd': 'pd'
-        }
-        return process_request(json_data, 'cylinder', param_mapping)
-    return {'name': 5}
-
-@app.route("/sph", methods=['POST','GET'])
-def spheregraph():
-    if request.method == 'POST':
-        json_data = request.get_json()
-        param_mapping = {
-            'radius': 'sphereRadius',
-            'scale': 'sphereScale',
-            'sld': 'sphereScatteringLengthDensity',
-            'background': 'sphereBackground',
-            'radius_pd': 'spherePolydispersity',
-            'sld_solvent': 'sphereScatteringLengthSolvent'
-        }
-        return process_request(json_data, 'sphere', param_mapping)
-    return {'name': 5}
-
-@app.route("/css", methods=['POST','GET'])
-def cssgraph():
-    if request.method == 'POST':
-        json_data = request.get_json()
-        param_mapping = {
-            'radius': 'radius',
-            'thickness': 'thickness',
-            'scale': 'scale',
-            'background': 'background',
-            'sld_core': 'sldcore',
-            'sld_shell': 'sldshell',
-            'sld_solvent': 'sldsolvent',
-            'radius_pd': 'pd'
-        }
-        return process_request(json_data, 'core_shell_sphere', param_mapping)
-    return {'name': 5}
-
-@app.route("/csc", methods=['POST','GET'])
-def cscgraph():
-    if request.method == 'POST':
-        json_data = request.get_json()
-        param_mapping = {
-            'radius': 'radius',
-            'thickness': 'thickness',
-            'length': 'h'
-        }
-        return process_request(json_data, 'core_shell_cylinder', param_mapping)
-    return {'name': 5}
 @app.route("/simulate_graph", methods=["POST"])
 def sim_graph():
     if request.method == 'POST':
         json_data = request.get_json()
         return(json_data)
+
+def graphASphere(data):
+    param_mapping = {
+            'background': 'sphereBackground',
+            'polydispersity': 'spherePolydispersity',
+            'radius': 'sphereRadius',
+            'scale': 'sphereScale',
+            'sld': 'sphereScatteringLengthDensity',
+            'sld_solvent': 'sphereScatteringLengthSolvent'
+    }
+    return process_request(data, 'sphere', param_mapping)
+def graphACoreShellSphere(data):
+    param_mapping = {
+            'background': 'coreShellSphereBackground',
+            'polydispersity': 'coreShellSpherePolydispersity',
+            'radius': 'coreShellSphereRadius',
+            'scale': 'coreShellSphereScale',
+            'sld_core': 'coreShellSphereScatteringLengthCore',
+            'sld_shell': 'coreShellSphereScatteringLengthShell',
+            'sld_solvent': 'coreShellSphereScatteringLengthSolvent',
+            'thickness': 'coreShellSpehereThickness'
+    }
+    return process_request(data, 'coreShellsphere', param_mapping)
+
+def graphACylinder(data):
+    param_mapping = {
+            'background': 'cylinderBackground',
+            'length': 'cylinderLength',
+            'polydispersity': 'cylinderPolydispersity',
+            'radius': 'cylinderRadius',
+            'scale': 'cylinderScale',
+            'sld': 'cylinderScatteringLengthDensity',
+            'sld_solvent': 'cylinderScatteringLengthSolvent',
+            #'length_pd_type': 'schulz',
+           # 'length_pd_n': 40,
+           # 'length_pd_nsigma': 3
+    }
+    return process_request(data, 'cylinder', param_mapping)
+def graphACoreShellCylinder(data):
+    param_mapping = {
+            'backnground': 'coreShellCylinderBackground',
+            'length': 'coreShellCylinderLength',
+            'polydispersity': 'coreShellCylinderPolydispersity',
+            'radius': 'coreShellCylinderRadius',
+            'scale': 'coreShellCylinderScale',
+            'sld_core': 'coreShellCylinderScatteringLengthCore',
+            'sld_length': 'coreShellCylinderScatteringLengthShell',
+            'sld_solvent': 'coreShellCylinderScatteringLengthSolvent',
+            'thickness': 'coreShellCylinderThickness',
+    }
+    return process_request(data, 'CoreShellDisk', param_mapping)
+def graphADisk(data):
+    param_mapping = {
+            'background': 'diskBackground',
+            'length': 'diskLength',
+            'polydispersity': 'diskPolydispersity',
+            'radius': 'diskRadius',
+            'scale': 'diskScale',
+            'sld': 'diskScatteringLengthDensity',
+            'sld_solvent': 'diskScatteringLengthSolvent'
+    }
+    return process_request(data, 'Disk', param_mapping)
+
+def graphACoreShellDisk(data):
+    param_mapping = {
+            'background': 'coreShellDiskBackground',
+            'length': 'coreShellDiskLength',
+            'polydispersity': 'coreShellDiskPolydispersity',
+            'radius': 'coreShellDiskRadius',
+            'scale': 'coreShellDiskScale',
+            'sld_core': 'coreShellDiskScatteringLengthCore',
+            'sld_shell': 'coreShellDiskScatteringLengthShell',
+            'sld_solvent': 'coreShellDiskScatteringLengthSolvent'
+    }
+    return process_request(data, 'sphere', param_mapping)
+
+MORPHOLOGY_FUNCTIONS = {
+    "Sphere": graphASphere,
+    "CoreShellSphere": graphACoreShellSphere,
+    "Cylinder": graphACylinder,
+    "CoreShellCylinder": graphACoreShellCylinder,
+    "Disk": graphADisk,
+    "CoreShellDisk": graphACoreShellDisk
+}
+
+@app.route('/simulate_graph', methods=['POST'])
+def simulate_graph():
+    data = request.get_json()
+
+    if not data or "morphology" not in data:
+        return jsonify({"error": "Morphology not specified"}), 400
+
+    morphology = data["morphology"]
+    
+    if morphology not in MORPHOLOGY_FUNCTIONS:
+        return jsonify({"error": "Invalid morphology"}), 400
+
+    # Call the function
+    response = MORPHOLOGY_FUNCTIONS[morphology](data)
+
+    return jsonify(response)
+# @app.route("/graphcsd", methods=['POST','GET'])
+# def chartcsd():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'length': 'h',
+#             'radius': 'radius',
+#             'background': 0.001,
+#             'scale': 1,
+#             'length_pd': 0.5,
+#             'length_pd_type': 'schulz',
+#             'length_pd_n': 40,
+#             'length_pd_nsigma': 3
+#         }
+#         return process_request(json_data, 'cylinder', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/csd", methods=['POST','GET'])
+# def csd():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'length': 'h',
+#             'radius': 'radius',
+#             'thickness': 'thickness',
+#             'sld_core': 'sldcore',
+#             'sld_shell': 'sldshell',
+#             'sld_solvent': 'sldsolvent',
+#             'background': 'background',
+#             'scale': 'scale',
+#             'length_pd': 'pd'
+#         }
+#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/graph", methods=['POST','GET'])
+# def chart():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'length': 'h',
+#             'radius': 'radius',
+#             'scale': 'scale',
+#             'sld': 'sld',
+#             'sld_solvent': 'sldsolvent',
+#             'background': 'background',
+#             'length_pd': 'pd'
+#         }
+#         return process_request(json_data, 'cylinder', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/sph", methods=['POST','GET'])
+# def spheregraph():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'radius': 'sphereRadius',
+#             'scale': 'sphereScale',
+#             'sld': 'sphereScatteringLengthDensity',
+#             'background': 'sphereBackground',
+#             'radius_pd': 'spherePolydispersity',
+#             'sld_solvent': 'sphereScatteringLengthSolvent'
+#         }
+#         return process_request(json_data, 'sphere', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/css", methods=['POST','GET'])
+# def cssgraph():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'radius': 'radius',
+#             'thickness': 'thickness',
+#             'scale': 'scale',
+#             'background': 'background',
+#             'sld_core': 'sldcore',
+#             'sld_shell': 'sldshell',
+#             'sld_solvent': 'sldsolvent',
+#             'radius_pd': 'pd'
+#         }
+#         return process_request(json_data, 'core_shell_sphere', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/csc", methods=['POST','GET'])
+# def cscgraph():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'radius': 'radius',
+#             'thickness': 'thickness',
+#             'length': 'h'
+#         }
+#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
+#     return {'name': 5}
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
@@ -253,3 +356,4 @@ if __name__ == '__main__':
             'sld_solvent': 'sphereScatteringLengthSolvent'
     }
     return process_request(data, 'sphere', param_mapping)"""
+
