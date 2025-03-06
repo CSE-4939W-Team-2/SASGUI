@@ -1,4 +1,4 @@
-import { atom, useRecoilValue } from 'recoil'
+import { atom, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import Page, { sliderObj } from '../components/Page'
 import { sphereSliders } from '../atoms/sphereTemplate'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -9,9 +9,15 @@ import { diskSliders } from '../atoms/diskTemplate';
 import { coreShellDiskSliders } from '../atoms/coreShellDiskTemplate';
 import { currentMorphology } from '../atoms/morphologyTemplate';
 import { useEffect } from 'react';
-import { csvCurve, csvCurveData } from './CSVFileReader';
+import { csvCurve } from './CSVFileReader';
+export const curveWithCSVData = atom({
+    key: 'curveWithCSVData',
+    default: [] as curveWithCSVData[]
+  });
+export interface curveWithCSVData {"":String, ICsv:number, ISim:number, q:number};
 export default function Wrapper() {
-    const [curve, setCurve] = useRecoilValue(csvCurve);
+    const upCurve = useRecoilValue(csvCurve);
+    const setCurveData = useSetRecoilState(curveWithCSVData)
     const morphology = useRecoilValue(currentMorphology);
     const sphereData:any = {morphology:"Sphere"}
     sphereSliders.map((slider:sliderObj)=>{
@@ -75,14 +81,25 @@ export default function Wrapper() {
                 }
             }).then(response => response.json())
             .then(data => {
-              console.log('Success:', data);
+              if(data.xval !== null && data.yval !== null){
+                let resCurve = data.xval.map((x:number, i:number) => {
+                    return {
+                        "": i.toString(),
+                        ICsv: upCurve.length===200? upCurve[i].ICsv : NaN, 
+                        ISim:data.yval[i], 
+                        q:data.xval[i]
+                    }
+                })
+                console.log(resCurve)
+                setCurveData(resCurve)
+              }
             })
             .catch(error => {
               console.error('Error:', error);
             });
         }
         
-    },[morphology, sphereData, coreShellSphereData, coreShellCylinderData, cylinderData, coreShellDiskData, diskData])
+    },[morphology, sphereData, coreShellSphereData, coreShellCylinderData, cylinderData, coreShellDiskData, diskData, upCurve])
     return(
         <BrowserRouter>
             <Routes>

@@ -4,23 +4,26 @@ import { useRecoilValue } from 'recoil';
 import { csvCurve } from './CSVFileReader';
 import { useEffect, useState } from 'react';
 import React from 'react';
+import { curveWithCSVData } from './wrapper';
+import { currentMorphology } from '../atoms/morphologyTemplate';
 
 const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//Function for the tooltip
     if (active && payload && payload.length) {
         return (
             <div className="sas-tooltip" style={{backgroundColor:"#DDDDDD", textAlign:"left"}}>
               <p>{`Point Number: ${payload[0].payload[""]}`}</p>
-              <p>{`Intensity (upload): ${payload[0].payload.ICsv}`}</p>
-              <p>{`Intensity (sim): ${payload[0].payload.ISim}`}</p>
+              <>{isNaN(payload[0].payload.ICsv)? null : <p>{`Intensity (upload): ${payload[0].payload.ICsv}`}</p>}</>
+              <>{isNaN(payload[0].payload.ISim)? null : <p>{`Intensity (sim): ${payload[0].payload.ISim}`}</p>}</>
               <p>{`Q: ${payload[0].payload.q}`}</p>
             </div>
           );
     }
 }
 export default function Charter(){
-    const csvData = useRecoilValue(csvCurve);
+    const morphology = useRecoilValue(currentMorphology);
+    const curveData = morphology==="/"? useRecoilValue(csvCurve):useRecoilValue(curveWithCSVData);
     const initialState = {
-        data: csvData,
+        data: curveData,
         left: "dataMin",
         right: "dataMax",
         refAreaLeft: "",
@@ -34,16 +37,16 @@ export default function Charter(){
     useEffect(() => {
         setState((prev) => ({
             ...prev,
-            data:csvData,
+            data:curveData,
           }));
           zoomOut();
-    },[csvData])
+    },[curveData])
     const getAxisYDomain = (
         from: number,
         to: number,
         ref: string,
       ) => {
-        const refData: any[] = csvData.slice(from, to+1);
+        const refData: any[] = curveData.slice(from, to+1);
         let [bottom, top] = [refData[0][ref], refData[0][ref]];
         refData.forEach((d) => {
           if (d[ref] > top) top = d[ref];
