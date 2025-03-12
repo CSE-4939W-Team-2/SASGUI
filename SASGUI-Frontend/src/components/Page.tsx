@@ -8,10 +8,11 @@ import LoadRemote from "./LoadRemote";
 import MorphologySwitcher from "./MorphologySwitcher";
 import CSVFileReader from "./CSVFileReader";
 import ParameterSlider from "./ParameterSlider.js";
-import { RecoilState } from "recoil";
+import { RecoilState, useRecoilValue } from "recoil";
 import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Box } from "./cube.js";
+import { currentMorphology } from "../atoms/morphologyTemplate.js";
 export interface sliderObj {
     label: string,
     minVal: number,
@@ -24,6 +25,7 @@ interface Props {
     title: string
 }
 export default function Page(props:Props){
+    const morphology = useRecoilValue(currentMorphology);
     useEffect(() => {
         document.title=props.title//Set the webpage title when it changes
     },[props.title])
@@ -66,7 +68,7 @@ export default function Page(props:Props){
                     <ambientLight intensity={Math.PI / 2} />
                     <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
                     <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-                    <Box position={[0, 0, 0]} />
+                    <Box shapeType={morphology.replace(/\//g, '')} position={[0, 0, 0]} />
                 </Canvas>
             </div>
         </div>
