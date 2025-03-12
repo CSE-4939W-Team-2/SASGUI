@@ -183,13 +183,13 @@ def graphACylinder(data):
     return process_request(data, 'cylinder', param_mapping)
 def graphACoreShellCylinder(data):
     param_mapping = {
-            'backnground': 'coreShellCylinderBackground',
+            'background': 'coreShellCylinderBackground',
             'length': 'coreShellCylinderLength',
             'radius_pd': 'coreShellCylinderPolydispersity',
             'radius': 'coreShellCylinderRadius',
             'scale': 'coreShellCylinderScale',
             'sld_core': 'coreShellCylinderScatteringLengthCore',
-            'sld_length': 'coreShellCylinderScatteringLengthShell',
+            'sld_shell': 'coreShellCylinderScatteringLengthShell',
             'sld_solvent': 'coreShellCylinderScatteringLengthSolvent',
             'thickness': 'coreShellCylinderThickness',
     }
