@@ -145,13 +145,20 @@ def sim_graph():
         return(json_data)"""
 
 def graphASphere(data):
+    """'radius_pd_type':'schulz',
+            'radius_pd_n' : '40',
+            'radius_pd_nsigma': '3',"""
     param_mapping = {
             'background': 'sphereBackground',
             'radius_pd': 'spherePolydispersity',
-            'radius': 'sphereRadius',
+            'radius' : 'sphereRadius',
             'scale': 'sphereScale',
             'sld': 'sphereScatteringLengthDensity',
-            'sld_solvent': 'sphereScatteringLengthSolvent'
+            'sld_solvent': 'sphereScatteringLengthSolvent',
+            'radius_pd_type':'schulz',
+            'radius_pd_n' : 40,
+            'radius_pd_nsigma': 3
+
     }
     return process_request(data, 'sphere', param_mapping)
 def graphACoreShellSphere(data):
@@ -163,7 +170,10 @@ def graphACoreShellSphere(data):
             'sld_core': 'coreShellSphereScatteringLengthCore',
             'sld_shell': 'coreShellSphereScatteringLengthShell',
             'sld_solvent': 'coreShellSphereScatteringLengthSolvent',
-            'thickness': 'coreShellSphereThickness'
+            'thickness': 'coreShellSphereThickness',
+            'radius_pd_type':'schulz',
+            'radius_pd_n' : 40,
+            'radius_pd_nsigma': 3
     }
     return process_request(data, 'core_shell_sphere', param_mapping)
 
@@ -176,9 +186,9 @@ def graphACylinder(data):
             'scale': 'cylinderScale',
             'sld': 'cylinderScatteringLengthDensity',
             'sld_solvent': 'cylinderScatteringLengthSolvent',
-            #'length_pd_type': 'schulz',
-           # 'length_pd_n': 40,
-           # 'length_pd_nsigma': 3
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
     }
     return process_request(data, 'cylinder', param_mapping)
 def graphACoreShellCylinder(data):
@@ -192,6 +202,9 @@ def graphACoreShellCylinder(data):
             'sld_shell': 'coreShellCylinderScatteringLengthShell',
             'sld_solvent': 'coreShellCylinderScatteringLengthSolvent',
             'thickness': 'coreShellCylinderThickness',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
     }
     return process_request(data, 'core_shell_cylinder', param_mapping)
 def graphADisk(data):
@@ -202,7 +215,10 @@ def graphADisk(data):
             'radius': 'diskRadius',
             'scale': 'diskScale',
             'sld': 'diskScatteringLengthDensity',
-            'sld_solvent': 'diskScatteringLengthSolvent'
+            'sld_solvent': 'diskScatteringLengthSolvent',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
     }
     return process_request(data, 'cylinder', param_mapping)
 
@@ -215,7 +231,11 @@ def graphACoreShellDisk(data):
             'scale': 'coreShellDiskScale',
             'sld_core': 'coreShellDiskScatteringLengthCore',
             'sld_shell': 'coreShellDiskScatteringLengthShell',
-            'sld_solvent': 'coreShellDiskScatteringLengthSolvent'
+            'sld_solvent': 'coreShellDiskScatteringLengthSolvent',
+            'thickness': 'coreShellDiskThickness',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
     }
     return process_request(data, 'core_shell_cylinder', param_mapping)
 
