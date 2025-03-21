@@ -13,11 +13,12 @@ import { currentMorphology, saveLoad } from "../atoms/morphologyTemplate";
 import { useNavigate } from "react-router-dom";
 export default function LoadLocal() {
     const inputRef = useRef<HTMLInputElement>(null);//Used for file upload
-    const [file, setFile] = useRecoilState(csvFile);
-    const setCurve = useSetRecoilState(csvCurve);
-    const setFileName = useSetRecoilState(csvFileName);
-    const [morphology, setMorphology] = useRecoilState(currentMorphology)
+    const [file, setFile] = useRecoilState(csvFile);//Setter for the csv file state
+    const setCurve = useSetRecoilState(csvCurve);//Holds the csv curve data for the graph
+    const setFileName = useSetRecoilState(csvFileName);//CSV file name
+    const [morphology, setMorphology] = useRecoilState(currentMorphology)//Current morphology
     const navigate = useNavigate();
+    //Below objects grab the setter functions for each morphology's data points
     const sphereSetters = sphereSliders.map((slider:sliderObj)=>{
             return(
             {
@@ -78,6 +79,7 @@ export default function LoadLocal() {
                         handleSave(parsedData.curveData);
                         setFileName(parsedData.fileName);
                         setMorphology(parsedData.morphology);
+                        //Grab all the data for all the sliders in all morphologies
                         parsedData.sphereData.map((slider:{atom: RecoilState<number>, value: number}, i:number) => {
                             if(slider.atom.key === sphereSetters[i].atom.key){
                                 sphereSetters[i].setter(slider.value)

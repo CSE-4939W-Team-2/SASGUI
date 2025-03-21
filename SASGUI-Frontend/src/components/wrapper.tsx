@@ -19,6 +19,8 @@ export default function Wrapper() {
     const upCurve = useRecoilValue(csvCurve);
     const setCurveData = useSetRecoilState(curveWithCSVData)
     const morphology = useRecoilValue(currentMorphology);
+    /*The objects and map functions below take the templates in the atoms folder and put the data contained
+    by all the atoms into an object for each morphology.*/
     const sphereData:any = {morphology:"Sphere"}
     sphereSliders.map((slider:sliderObj)=>{
         sphereData[slider.atomic.key] = useRecoilValue(slider.atomic)
@@ -44,6 +46,7 @@ export default function Wrapper() {
         coreShellDiskData[slider.atomic.key] = useRecoilValue(slider.atomic)
     })
     useEffect(()=>{
+        //Using a switch case, the object containing the data for the current morphology is selected
         let data = null
         switch (morphology){
             case "/sphere":
@@ -70,6 +73,7 @@ export default function Wrapper() {
             default:
                 console.error("Not a valid morphology")
         }
+        //Send off the data
         if(data!==null){
             fetch('http://localhost:5000/simulate_graph',{
                 method: 'POST',
@@ -81,6 +85,7 @@ export default function Wrapper() {
                 }
             }).then(response => response.json())
             .then(data => {
+            //Validate the data, process it into the curve object, and send it off to the chart via recoil
               if(data.xval !== null && data.yval !== null){
                 let resCurve = data.xval.map((x:number, i:number) => {
                     return {
@@ -98,7 +103,7 @@ export default function Wrapper() {
               console.error('Error:', error);
             });
         }
-        
+    //dependency list contains morphology and all of the data objects. This way, whenever a data point in any morphology or the current morphology changes, the above logic runs
     },[morphology, sphereData, coreShellSphereData, coreShellCylinderData, cylinderData, coreShellDiskData, diskData, upCurve])
     return(
         <BrowserRouter>

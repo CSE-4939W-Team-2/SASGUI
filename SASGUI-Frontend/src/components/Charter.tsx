@@ -1,13 +1,13 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, TooltipProps, ReferenceArea, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, TooltipProps, ReferenceArea, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { useRecoilValue } from 'recoil';
 import { csvCurve } from './CSVFileReader';
-import { useEffect, useState } from 'react';
+import {  useEffect, useState } from 'react';
 import React from 'react';
 import { curveWithCSVData } from './wrapper';
 import { currentMorphology } from '../atoms/morphologyTemplate';
 
-const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//Function for the tooltip
+const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//Function for the tooltip (popup view)
     if (active && payload && payload.length) {
         return (
             <div className="sas-tooltip" style={{backgroundColor:"#DDDDDD", textAlign:"left"}}>
@@ -18,6 +18,20 @@ const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//F
             </div>
           );
     }
+}
+//Custom tick marks trim X values down to avoid too many digit
+class CustomizedAxisTick extends React.Component<{x?: number, y?:number, payload?:any}> {
+  render() {
+    const { x, y, payload } = this.props;
+    console.log(payload);
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">
+          {payload.value.toFixed(4)}
+        </text>
+      </g>
+    );
+  }
 }
 export default function Charter(){
     const morphology = useRecoilValue(currentMorphology);
@@ -44,14 +58,24 @@ export default function Charter(){
     const getAxisYDomain = (
         from: number,
         to: number,
-        ref: string,
+        ref1: string,
+        ref2: string
       ) => {
         const refData: any[] = curveData.slice(from, to+1);
-        let [bottom, top] = [refData[0][ref], refData[0][ref]];
+        console.log(refData)
+        let initialValue = isNaN(refData[0][ref1])? refData[0][ref2] : refData[0][ref1]
+        let [bottom, top] = [initialValue, initialValue];
         refData.forEach((d) => {
-          if (d[ref] > top) top = d[ref];
-          if (d[ref] < bottom) bottom = d[ref];
+          if(!isNaN(d[ref1])){
+            if (d[ref1] > top) top = d[ref1];
+            if (d[ref1] < bottom) bottom = d[ref1];
+          }
+          if(!isNaN(d[ref2])){
+            if (d[ref2] > top) top = d[ref2];
+            if (d[ref2] < bottom) bottom = d[ref2];
+          }
         });
+        console.log(bottom, top)
         return [bottom,top];
     };
     const [state, setState] = useState<{
@@ -95,7 +119,8 @@ export default function Charter(){
         const [bottom, top] = getAxisYDomain(
           Number(refAreaLeftTemp),
           Number(refAreaRightTemp),
-          "I",
+          "ICsv",
+          "ISim"
         );
         if (refHighlightAreaLeft > refHighlightAreaRight){
             setState((prev) => ({
@@ -124,7 +149,6 @@ export default function Charter(){
             }));
         }
       };
-    
       const zoomOut = () => {
         setState((prev) => ({
           data: prev.data.slice(),
@@ -146,8 +170,6 @@ export default function Charter(){
             </button>
           <ResponsiveContainer height={300} width="95%">
             <LineChart
-              // width={800}
-              // height={400}
               data={data}
               onMouseDown={(e: any) =>
                 setState((prev) => ({ ...prev, refHighlightAreaLeft: e.activeLabel, refAreaLeft: e.activeTooltipIndex}))
@@ -164,7 +186,7 @@ export default function Charter(){
                 type="number"
                 label={"q"} 
                 dataKey={"q"} 
-                tick={false} 
+                tick={<CustomizedAxisTick/>} 
                 scale="log"
               />
               <YAxis
@@ -177,7 +199,7 @@ export default function Charter(){
                     angle: -90,
                     position: 'left',
                     offset: 0,}}
-                tick={false}
+                tick={true}
                 scale="log"
               />
               <Tooltip content={<SASTooltip/>}/>
@@ -195,7 +217,7 @@ export default function Charter(){
                 stroke="#950606"
                 animationDuration={300}
               />
-    
+              <CartesianGrid stroke="#ccc"/>
               {refHighlightAreaLeft && refHighlightAreaRight ? (
                 <ReferenceArea
                   yAxisId="1"

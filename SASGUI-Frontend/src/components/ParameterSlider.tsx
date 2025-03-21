@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { RecoilState, useRecoilState } from "recoil";
+import { RecoilState, useRecoilState, useRecoilValue } from "recoil";
+import { performanceMode } from "./PerformanceToggle";
 
 interface Props {
     label: string,
@@ -9,32 +10,46 @@ interface Props {
     atomic: RecoilState<number>
 }
 export default function ParameterSlider(props:Props){
-    const [value, setValue] = useRecoilState(props.atomic);//Get the atom of state for the slider
+    const [recValue, setRecValue] = useRecoilState(props.atomic);//Get the atom of state for the slider
+    const [value, setValue] = useState(props.minVal)
+    const perfMode = useRecoilValue(performanceMode)
     const [boxValue, setBoxValue] = useState(value.toString()); //Text box value (separate to allow correcting overflow without affecting state)
+    useEffect(()=>{
+        //Make sure value gets set correctly when changing pages and handle box changes
+        setBoxValue(recValue.toString());
+        setValue(recValue)
+    },[props, recValue])
+    //Handles sliders changing. Only sets the global recoil state if performance mode is off to allow constant updates to be disabled
     const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = parseFloat(event.target.value);
         setValue(newValue);
         setBoxValue(newValue.toString());
+        if(!perfMode){
+            setRecValue(newValue)
+        }
     }
-    useEffect(()=>{
-        setBoxValue(value.toString());//Make sure value gets set correctly when changing pages
-    },[props, value])
-    const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if(event.target.value !== ""){//Check if box is empty
-            const newValue = parseFloat(event.target.value);
+    //If in performance mode, only sets the global state when the mouse button is released. Makes performance much better in this mode
+    const handlePerfModeSlider = () => {
+        if(perfMode){
+            setRecValue(value)
+        }
+    }
+    //Handles and validates text entries. If they are out of bounds, sets them to the maximum bound
+    const handleTextEnter = () => {
+            const newValue = parseFloat(boxValue);
             if (newValue >= props.minVal && newValue<= props.maxVal){//Check if in range
-                setValue(newValue);
+                setRecValue(newValue);
             }
-            else if (newValue < props.minVal){//Value too low, set to min
-                setValue(props.minVal);
+            else if (newValue <= props.minVal){//Value too low, set to min
+                setRecValue(props.minVal);
             }
             else {//Value too high, set to max
-                setValue(props.maxVal);
+                setRecValue(props.maxVal);
             }
-        }
-        else{
-            setBoxValue(event.target.value)//To allow box to be empty
-        }
+    }
+    //Handles text entry into the text box. Entries are validated when the user presses enter, or leaves the text box by the function above
+    const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setBoxValue(event.target.value)
     }
     return(
         <div style={{display:"flex", flexDirection:"column", justifyContent:"center", textAlign:"left"}}>
@@ -47,7 +62,8 @@ export default function ParameterSlider(props:Props){
                     min={props.minVal} 
                     max={props.maxVal} value={value} 
                     id={props.label} step={props.step} 
-                    onChange={handleSliderChange} 
+                    onChange={handleSliderChange}
+                    onMouseUp={handlePerfModeSlider}
                     style={{width:"80%"}}/>
                 <input 
                     type="text" 
@@ -55,7 +71,9 @@ export default function ParameterSlider(props:Props){
                     max={props.maxVal} 
                     value={boxValue} 
                     id={props.label} 
-                    onChange={handleTextChange} 
+                    onChange={handleTextChange}
+                    onBlur={handleTextEnter}
+                    onKeyUp={(event) => {if(event.key === "Enter") handleTextEnter()}}
                     style={{width:"20%"}}/>
             </div>
         </div>
