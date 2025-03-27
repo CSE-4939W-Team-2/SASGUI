@@ -10,9 +10,10 @@ import { diskSliders } from "../atoms/diskTemplate";
 import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { cylinderSliders } from "../atoms/cylinderTemplate";
 export default function SaveLocal() {
-    const fileName = useRecoilValue(csvFileName);
-    const curveData = useRecoilValue(csvCurve);
-    const morphology = useRecoilValue(currentMorphology);
+    const fileName = useRecoilValue(csvFileName);//Get file name
+    const curveData = useRecoilValue(csvCurve);//Get graph csv data
+    const morphology = useRecoilValue(currentMorphology);//Get current morphologies
+    //Use templates to grab data from sliders
     const sphereData = sphereSliders.map((slider:sliderObj)=>{
         return(
         {
@@ -58,6 +59,7 @@ export default function SaveLocal() {
     const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const name = prompt("Please enter a file name");
+        //Put everything into an object, turn it into a string, and save it as a JSON file
         if(name!== null){
             const jsonState:saveLoad = {
                 fileName: fileName,

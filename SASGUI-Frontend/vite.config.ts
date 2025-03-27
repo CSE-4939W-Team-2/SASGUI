@@ -6,5 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
+    allowedHosts: ["sasgui.cse.uconn.edu"]
   },
+  
 })
