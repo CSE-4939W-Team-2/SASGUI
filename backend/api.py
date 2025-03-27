@@ -9,7 +9,7 @@ import numpy as np
 
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173", "http://localhost:5173"]}})
+cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
 # TODO: database connection
 DATABASE = {}
 
