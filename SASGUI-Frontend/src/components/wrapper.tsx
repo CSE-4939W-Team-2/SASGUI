@@ -75,7 +75,7 @@ export default function Wrapper() {
         }
         //Send off the data
         if(data!==null){
-            fetch('http://sasgui.cse.uconn.edu:5000/simulate_graph',{
+            fetch('http://137.99.199.121:5000/simulate_graph',{
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: JSON.stringify(data),
