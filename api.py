@@ -6,7 +6,7 @@ from sasmodels.direct_model import call_kernel
 import sys
 sys.path.append('hierarchical_SAS_analysis-main 2')
 import numpy as np
-
+import startup
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
@@ -24,13 +24,14 @@ def upload_file():
     if file:
         file.save(os.path.join("./", file.filename))
         return jsonify({'message': 'File successfully uploaded'}), 200
-
-@app.route("/chd", methods=['POST','GET'])
+    return startup.main2() # returns predicted dimensions 
+    
+@app.route("/shape", methods=['POST','GET'])
 def chd():
     if request.method == 'POST':
             json  = request.get_json()
             shape = json.get('shape')
-            return startup.main(shape)
+            return startup.main(shape) #returns dimensions for morphology
     return {'name': 5}
 
 
