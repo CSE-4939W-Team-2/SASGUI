@@ -44,62 +44,71 @@ export const coreShellCylinderSliders:sliderObj[] = [
         minVal: 0,
         maxVal: 1600,
         step: 0.1,
-        atomic: coreShellCylinderLength
+        atomic: coreShellCylinderLength,
+        predicted: true
     },
     {
         label: "Thickness",
         minVal: 0,
         maxVal: 500,
         step: 0.1,
-        atomic: coreShellCylinderThickness
+        atomic: coreShellCylinderThickness,
+        predicted: true
     },
     {
         label: "Radius",
         minVal: 0,
         maxVal: 800,
         step: 0.1,
-        atomic: coreShellCylinderRadius
+        atomic: coreShellCylinderRadius,
+        predicted: true
     },
     {
         label: "Polydispersity",
         minVal: 0,
         maxVal: 1,
         step: 0.01,
-        atomic: coreShellCylinderPolydispersity
+        atomic: coreShellCylinderPolydispersity,
+        predicted: true
     },
     {
-        label: "Scattering Length Density Solvent (Not Predicted)",
+        label: "Scattering Length Density Solvent",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellCylinderScatteringLengthSolvent
+        atomic: coreShellCylinderScatteringLengthSolvent,
+        predicted: false
     },
     {
-        label: "Scattering Length Density Shell (Not Predicted)",
+        label: "Scattering Length Density Shell",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellCylinderScatteringLengthShell
+        atomic: coreShellCylinderScatteringLengthShell,
+        predicted: false
     },
     {
-        label: "Scattering Length Density Core (Not Predicted)",
+        label: "Scattering Length Density Core",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellCylinderScatteringLengthCore
+        atomic: coreShellCylinderScatteringLengthCore,
+        predicted: false
     },
     {
-        label: "Background (Not Predicted)",
+        label: "Background",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: coreShellCylinderBackground
+        atomic: coreShellCylinderBackground,
+        predicted: false
     },
     {
-        label: "Scale (Not Predicted)",
+        label: "Scale",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: coreShellCylinderScale
+        atomic: coreShellCylinderScale,
+        predicted: false
     }
 ]

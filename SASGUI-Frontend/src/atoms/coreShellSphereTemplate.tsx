@@ -40,55 +40,63 @@ export const coreShellSphereSliders:sliderObj[] = [
         minVal: 0,
         maxVal: 500,
         step: 0.1,
-        atomic: coreShellSphereThickness
+        atomic: coreShellSphereThickness,
+        predicted: true
     },
     {
         label: "Radius",
         minVal: 0,
         maxVal: 800,
         step: 0.1,
-        atomic: coreShellSphereRadius
+        atomic: coreShellSphereRadius,
+        predicted: true
     },
     {
         label: "Polydispersity",
         minVal: 0,
         maxVal: 1,
         step: 0.01,
-        atomic: coreShellSpherePolydispersity
+        atomic: coreShellSpherePolydispersity,
+        predicted: true
     },
     {
-        label: "Scattering Length Density Solvent (Not Predicted)",
+        label: "Scattering Length Density Solvent",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellSphereScatteringLengthSolvent
+        atomic: coreShellSphereScatteringLengthSolvent,
+        predicted: false
     },
     {
-        label: "Scattering Length Density Shell (Not Predicted)",
+        label: "Scattering Length Density Shell",
         minVal: -30,
         maxVal: 100,
         step: 0.1,
-        atomic: coreShellSphereScatteringLengthShell
+        atomic: coreShellSphereScatteringLengthShell,
+        predicted: false
     },
     {
-        label: "Scattering Length Density Core (Not Predicted)",
+        label: "Scattering Length Density Core",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellSphereScatteringLengthCore
+        atomic: coreShellSphereScatteringLengthCore,
+        predicted: false
     },
     {
-        label: "Background (Not Predicted)",
+        label: "Background",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: coreShellSphereBackground
+        atomic: coreShellSphereBackground,
+        predicted: false
     },
     {
-        label: "Scale (Not Predicted)",
+        label: "Scale",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: coreShellSphereScale
+        atomic: coreShellSphereScale,
+        predicted: false
     }
 ]

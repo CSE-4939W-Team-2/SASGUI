@@ -7,7 +7,8 @@ interface Props {
     minVal: number,
     maxVal: number,
     step: number,
-    atomic: RecoilState<number>
+    atomic: RecoilState<number>,
+    predicted: boolean
 }
 export default function ParameterSlider(props:Props){
     const [recValue, setRecValue] = useRecoilState(props.atomic);//Get the atom of state for the slider
@@ -53,7 +54,7 @@ export default function ParameterSlider(props:Props){
     }
     return(
         <div style={{display:"flex", flexDirection:"column", justifyContent:"center", textAlign:"left"}}>
-            <div style={{display:"flex", flexDirection:"column", height:"50px", justifyContent:"center"}}>
+            <div style={{display:"flex", flexDirection:"column", height:"50px", justifyContent:"center", fontWeight:props.predicted? "bold" : "normal"}}>
                 <label>{props.label}</label>
             </div>            
             <div style={{display:"flex", flexDirection:"row"}}>

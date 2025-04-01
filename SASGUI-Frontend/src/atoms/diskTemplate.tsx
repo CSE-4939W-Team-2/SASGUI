@@ -36,48 +36,55 @@ export const diskSliders:sliderObj[] = [
         minVal: 0,
         maxVal: 1600,
         step: 0.1,
-        atomic: diskLength
+        atomic: diskLength,
+        predicted: true
     },
     {
         label: "Radius",
         minVal: 0,
         maxVal: 800,
         step: 0.1,
-        atomic: diskRadius
+        atomic: diskRadius,
+        predicted: true
     },
     {
         label: "Polydispersity",
         minVal: 0,
         maxVal: 1,
         step: 0.01,
-        atomic: diskPolydispersity
+        atomic: diskPolydispersity,
+        predicted: true
     },
     {
-        label: "Scattering Length Density Solvent (Not Predicted)",
+        label: "Scattering Length Density Solvent",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: diskScatteringLengthSolvent
+        atomic: diskScatteringLengthSolvent,
+        predicted: false
     },
     {
-        label: "Scattering Length Density (Not Predicted)",
+        label: "Scattering Length Density",
         minVal: 0,
         maxVal: 30,
         step: 0.1,
-        atomic: diskScatteringLengthDensity
+        atomic: diskScatteringLengthDensity,
+        predicted: false
     },
     {
-        label: "Background (Not Predicted)",
+        label: "Background",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: diskBackground
+        atomic: diskBackground,
+        predicted: false
     },
     {
-        label: "Scale (Not Predicted)",
+        label: "Scale",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: diskScale
+        atomic: diskScale,
+        predicted: false
     }
 ]

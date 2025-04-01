@@ -44,62 +44,71 @@ export const coreShellDiskSliders:sliderObj[] = [
         minVal: 0,
         maxVal: 1600,
         step: 0.1,
-        atomic: coreShellDiskLength
+        atomic: coreShellDiskLength,
+        predicted: true
     },
     {
         label: "Thickness",
         minVal: 0,
         maxVal: 500,
         step: 0.1,
-        atomic: coreShellDiskThickness
+        atomic: coreShellDiskThickness,
+        predicted: true
     },
     {
         label: "Radius",
         minVal: 0,
         maxVal: 800,
         step: 0.1,
-        atomic: coreShellDiskRadius
+        atomic: coreShellDiskRadius,
+        predicted: true
     },
     {
         label: "Polydispersity",
         minVal: 0,
         maxVal: 1,
         step: 0.01,
-        atomic: coreShellDiskPolydispersity
+        atomic: coreShellDiskPolydispersity,
+        predicted: true
     },
     {
-        label: "Scattering Length Density Solvent (Not Predicted)",
+        label: "Scattering Length Density Solvent",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellDiskScatteringLengthSolvent
+        atomic: coreShellDiskScatteringLengthSolvent,
+        predicted: false
     },
     {
-        label: "Scattering Length Density Shell (Not Predicted)",
+        label: "Scattering Length Density Shell",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellDiskScatteringLengthShell
+        atomic: coreShellDiskScatteringLengthShell,
+        predicted: false
     },
     {
-        label: "Scattering Length Density Core (Not Predicted)",
+        label: "Scattering Length Density Core",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: coreShellDiskScatteringLengthCore
+        atomic: coreShellDiskScatteringLengthCore,
+        predicted: false
     },
     {
-        label: "Background (Not Predicted)",
+        label: "Background",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: coreShellDiskBackground
+        atomic: coreShellDiskBackground,
+        predicted: false
     },
     {
-        label: "Scale (Not Predicted)",
+        label: "Scale",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: coreShellDiskScale
+        atomic: coreShellDiskScale,
+        predicted: false
     }
 ]

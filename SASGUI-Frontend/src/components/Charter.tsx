@@ -184,7 +184,7 @@ export default function Charter(){
                 allowDataOverflow
                 domain={[left, right]}
                 type="number"
-                label={"q"} 
+                label={"q (Å)"} 
                 dataKey={"q"} 
                 tick={<CustomizedAxisTick/>} 
                 scale="log"

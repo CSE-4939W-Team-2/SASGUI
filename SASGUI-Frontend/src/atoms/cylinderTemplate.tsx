@@ -36,48 +36,55 @@ export const cylinderSliders:sliderObj[] = [
         minVal: 0,
         maxVal: 1600,
         step: 0.1,
-        atomic: cylinderLength
+        atomic: cylinderLength,
+        predicted: true
     },
     {
         label: "Radius",
         minVal: 0,
         maxVal: 800,
         step: 0.1,
-        atomic: cylinderRadius
+        atomic: cylinderRadius,
+        predicted: true
     },
     {
         label: "Polydispersity",
         minVal: 0,
         maxVal: 1,
         step: 0.01,
-        atomic: cylinderPolydispersity
+        atomic: cylinderPolydispersity,
+        predicted: true
     },
     {
-        label: "Scattering Length Density Solvent (Not Predicted)",
+        label: "Scattering Length Density Solvent",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: cylinderScatteringLengthSolvent
+        atomic: cylinderScatteringLengthSolvent,
+        predicted: false
     },
     {
-        label: "Scattering Length Density (Not Predicted)",
+        label: "Scattering Length Density",
         minVal: 0,
         maxVal: 30,
         step: 0.1,
-        atomic: cylinderScatteringLengthDensity
+        atomic: cylinderScatteringLengthDensity,
+        predicted: false
     },
     {
-        label: "Background (Not Predicted)",
+        label: "Background",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: cylinderBackground
+        atomic: cylinderBackground,
+        predicted: false
     },
     {
-        label: "Scale (Not Predicted)",
+        label: "Scale",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: cylinderScale
+        atomic: cylinderScale,
+        predicted: false
     }
 ]

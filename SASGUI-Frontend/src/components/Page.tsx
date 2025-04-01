@@ -18,7 +18,8 @@ export interface sliderObj {
     minVal: number,
     maxVal: number,
     step: number,
-    atomic: RecoilState<number>
+    atomic: RecoilState<number>,
+    predicted: boolean
 }
 interface Props {
     sliderArray:sliderObj[],
@@ -59,7 +60,7 @@ export default function Page(props:Props){
                 {props.sliderArray.map((sliderFields:sliderObj, i)=> {
                     return(
                         <ParameterSlider key={i} label={sliderFields.label} minVal={sliderFields.minVal} maxVal={sliderFields.maxVal}
-                        step={sliderFields.step} atomic={sliderFields.atomic}/>
+                        step={sliderFields.step} atomic={sliderFields.atomic} predicted={sliderFields.predicted}/>
                     )
                 })}
             </div>

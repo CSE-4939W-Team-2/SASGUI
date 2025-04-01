@@ -32,41 +32,47 @@ export const sphereSliders:sliderObj[] = [
         minVal: 0,
         maxVal: 800,
         step: 0.1,
-        atomic: sphereRadius
+        atomic: sphereRadius,
+        predicted: true
     },
     {
         label: "Polydispersity",
         minVal: 0,
         maxVal: 1,
         step: 0.01,
-        atomic: spherePolydispersity
+        atomic: spherePolydispersity,
+        predicted: true
     },
     {
-        label: "Scattering Length Density Solvent (Not Predicted)",
+        label: "Scattering Length Density Solvent",
         minVal: -30,
         maxVal: 30,
         step: 0.1,
-        atomic: sphereScatteringLengthSolvent
+        atomic: sphereScatteringLengthSolvent,
+        predicted: false
     },
     {
-        label: "Scattering Length Density (Not Predicted)",
+        label: "Scattering Length Density",
         minVal: 0,
         maxVal: 30,
         step: 0.1,
-        atomic: sphereScatteringLengthDensity
+        atomic: sphereScatteringLengthDensity,
+        predicted: false
     },
     {
-        label: "Background (Not Predicted)",
+        label: "Background",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: sphereBackground
+        atomic: sphereBackground,
+        predicted: false
     },
     {
-        label: "Scale (Not Predicted)",
+        label: "Scale",
         minVal: 0.001,
         maxVal: 100,
         step: 0.001,
-        atomic: sphereScale
+        atomic: sphereScale,
+        predicted: false
     }
 ]
