@@ -95,6 +95,7 @@ export default function Wrapper() {
                         q:data.xval[i]
                     }
                 })
+                if(upCurve.length!==200 && upCurve.length!==0) alert("Uploaded spectra is hidden because it is not in a valid format")
                 console.log(resCurve)
                 setCurveData(resCurve)
               }

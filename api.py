@@ -26,12 +26,15 @@ def upload_file():
     if file.filename == '':
         return jsonify({'message': 'No file selected for uploading'}), 400
     if file:
-        file_path = os.path.join(UPLOAD_FOLDER, 'experimental_spectra.csv')  # Fixed filename
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)  # Fixed filename
         file.save(file_path)
-        return jsonify({'message': 'File successfully uploaded', 'file_path': file_path}), 200
-    result = startup.main2()
-    print("Function output:", result)  # Check if function returns a valid dictionary
-    return jsonify(result)
+        #return jsonify({'message': 'File successfully uploaded', 'file_path': file_path}), 200
+        result = startup.main2(file_path)
+        print("Function output:", result)  # Check if function returns a valid dictionary
+        os.remove(file_path)
+        return jsonify(result)
+    return jsonify({'message': 'Fatal error in ML model'}), 400
+    
 
 @app.route("/shape", methods=['POST','GET'])
 def chd():
