@@ -65,13 +65,11 @@ export default function MLButton() {
     });
     const sendData = async () => {
         if(csv.length !== 0){//If the csv data file is not null (if it exists)
-            console.log(csv)
             const formData = new FormData();//Add the CSV file to the request
             const timeStamp = Date.now().toString()
             const csvData = csv.map(point => {
               return {"": point.ICsv}
             })
-            console.log(csvData)
             var newFile = new File([jsonToCSV(csvData)], timeStamp + ".csv", {type:'application/vnd.ms-excel'})
             const renamed = new File([newFile], Date.now().toString() + ".csv", {type: "application/vnd.ms-excel"});
             formData.append('file', renamed);
