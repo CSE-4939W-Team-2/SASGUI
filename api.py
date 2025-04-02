@@ -14,6 +14,10 @@ cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:517
 DATABASE = {}
 
 # FIle Handling
+import os
+
+UPLOAD_FOLDER = os.path.abspath("hierarchical_SAS_analysis-main 2/data") # Directly use the existing folder path
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -22,10 +26,13 @@ def upload_file():
     if file.filename == '':
         return jsonify({'message': 'No file selected for uploading'}), 400
     if file:
-        file.save(os.path.join("./", file.filename))
-        return jsonify({'message': 'File successfully uploaded'}), 200
-    return startup.main2() # returns predicted dimensions 
-    
+        file_path = os.path.join(UPLOAD_FOLDER, 'experimental_spectra.csv')  # Fixed filename
+        file.save(file_path)
+        return jsonify({'message': 'File successfully uploaded', 'file_path': file_path}), 200
+    result = startup.main2()
+    print("Function output:", result)  # Check if function returns a valid dictionary
+    return jsonify(result)
+
 @app.route("/shape", methods=['POST','GET'])
 def chd():
     if request.method == 'POST':
