@@ -96,7 +96,7 @@ def main(shape):
     return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'length' : '%s'%(predicted_dimension.get('length')[0]) , "q2" : li,'radius' : '%s'%(predicted_dimension.get('radius')[0])}
    if shape == "cs_disk":
        return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'radius' : '%s'%(predicted_dimension.get('radius')[0]) , "q2" : li, 'pd' : '%s'%(predicted_dimension.get('polydispersity')[0]), 'thickness' : '%s'%(predicted_dimension.get('shell')[0])}
-
+print("Running startup.py...")
 def main2():
    bg_constant = 0.001
    targets = ['cylinder', 'disk', 'sphere', 'cs_cylinder', 'cs_disk', 'cs_sphere']
