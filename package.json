@@ -1,0 +1,12 @@
+{
+  "name": "project-7",
+  "version": "1.0.0",
+  "description": "Group members:\r - Evelyn Landau\r - Daniel Kalvaitis\r - Benjamin Zheng\r - Sophiya Singh\r - Shiv Patel\r - Jennifer Fomenko",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
