@@ -95,13 +95,8 @@ def get_3d_model():
 def save_to_database():
     """Saves prediction or curve data to the database."""
     data = request.json
-    dataField = data["data"]
-    parameter_selection = {
-            "morphology": dataField.get("morphology"),
-            "sphere_sliders": dataField.get("sphereSliders")
-        }
     if "fileName" in data:
-        dbFunctions.add_to_scans(file_name = data['name'], file_data = data['curveData'], parameter_dict = parameter_selection, user_id = data['userId'])
+        dbFunctions.add_to_scans(file_name = data['name'], file_data = data['data'], user_id = data['userId'])
     else:
         dbFunctions.add_to_users(user_id = data['userId'])
     return jsonify({"message": "Data saved successfully"})

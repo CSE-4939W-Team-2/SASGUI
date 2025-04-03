@@ -47,9 +47,8 @@ def add_to_users(user_id):
     add_to_table(db_location, user_table, (user_id))
     
 'Adds a scan along with parameters to the scans table'
-def add_to_scans(file_name, file_data, parameter_dict, user_id = 123123123):
-    parameters_json = json.dumps(parameter_dict)
-    new_values = (user_id, file_name, file_data, parameters_json)
+def add_to_scans(file_name, file_data, user_id = 123123123):
+    new_values = (user_id, file_name, file_data)
     add_to_table(db_location, user_table, new_values)
 
 'Retrieves all scans for a specific user_id'
