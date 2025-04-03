@@ -68,4 +68,4 @@ def get_scan_parameters(scan_id):
     return None
 
 if __name__ == "__main__":
-    add_to_users((123123123,))
+    print("Nothing to run here")

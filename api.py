@@ -67,13 +67,16 @@ def get_3d_model():
 @app.route('/save_to_database', methods=['POST'])
 def save_to_database():
     """Saves prediction or curve data to the database."""
-    data = request.json #TODO Confirm where data is held within data
-    data = data["data"]
-    if "file_name" in data: #We only have 2 tables, and if curveType is included within the dictionary, we assume that we're adding to the scans table, otherwise we add to users.
-        #TODO ^ Make sure this key is accurate
-        dbFunctions.add_to_scans()
+    data = request.json
+    dataField = data["data"]
+    parameter_selection = {
+            "morphology": dataField.get("morphology"),
+            "sphere_sliders": dataField.get("sphereSliders")
+        }
+    if "fileName" in data:
+        dbFunctions.add_to_scans(file_name = data['name'], file_data = data['curveData'], parameter_dict = parameter_selection, user_id = data['userId'])
     else:
-        dbFunctions.add_to_users()
+        dbFunctions.add_to_users(user_id = data['userId'])
     return jsonify({"message": "Data saved successfully"})
 
 
