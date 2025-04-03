@@ -1,25 +1,4 @@
 from flask import Flask, request, jsonify
-<<<<<<< HEAD
-import os
-import dbFunctions
-
-
-app = Flask(__name__)
-
-# FIle Handling
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    """Handles file upload."""
-    if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
-    file = request.files['file']
-    filepath = os.path.join("uploads", file.filename)
-    
-    # TODO: Save file to gibven path
-    file.save(filepath)
-    
-    return jsonify({"message": "File uploaded successfully", "filepath": filepath})
-=======
 from flask_cors import CORS
 import os
 from sasmodels.core import load_model
@@ -28,6 +7,7 @@ import sys
 sys.path.append('hierarchical_SAS_analysis-main 2')
 import numpy as np
 import startup
+import dbFunctions
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
@@ -64,7 +44,6 @@ def chd():
             shape = json.get('shape')
             return startup.main(shape) #returns dimensions for morphology
     return {'name': 5}
->>>>>>> frontend-backend-merge-final
 
 
 # Param Updates, dont think we use this
@@ -111,15 +90,11 @@ def get_3d_model():
     return jsonify({"message": "3D Model generated", "model": model_data})
 
 
-<<<<<<< HEAD
-=======
 # DB # TODO: update
->>>>>>> frontend-backend-merge-final
 @app.route('/save_to_database', methods=['POST'])
 def save_to_database():
     """Saves prediction or curve data to the database."""
     data = request.json
-<<<<<<< HEAD
     dataField = data["data"]
     parameter_selection = {
             "morphology": dataField.get("morphology"),
@@ -129,12 +104,6 @@ def save_to_database():
         dbFunctions.add_to_scans(file_name = data['name'], file_data = data['curveData'], parameter_dict = parameter_selection, user_id = data['userId'])
     else:
         dbFunctions.add_to_users(user_id = data['userId'])
-=======
-    
-    # TODO: Implement database save logic
-    DATABASE["latest"] = data  # test database save
-    
->>>>>>> frontend-backend-merge-final
     return jsonify({"message": "Data saved successfully"})
 
 
@@ -171,11 +140,6 @@ def output_3d_model():
 
 
 # -----
-<<<<<<< HEAD
-
-if __name__ == '__main__':
-    app.run(debug=True)
-=======
 #SASVIEW
 def process_request(json, model_name, param_mapping):
     """Helper function to process requests and generate scattering data."""
@@ -430,4 +394,3 @@ if __name__ == '__main__':
     }
     return process_request(data, 'sphere', param_mapping)"""
 
->>>>>>> frontend-backend-merge-final
