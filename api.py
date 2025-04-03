@@ -94,11 +94,15 @@ def get_3d_model():
 @app.route('/save_to_database', methods=['POST'])
 def save_to_database():
     """Saves prediction or curve data to the database."""
-    data = request.json
-    if "fileName" in data:
-        dbFunctions.add_to_scans(file_name = data['name'], file_data = data['data'], user_id = data['userId'])
-    else:
-        dbFunctions.add_to_users(user_id = data['userId'])
+    try:
+        data = request.json
+        if 'name' in data:
+            dbFunctions.add_to_scans(file_name = data['name'], file_data = data['data'], user_id = data['userId'])
+        else:
+            dbFunctions.add_to_users(user_id = data['userId'])
+    except Exception as e:
+        print(f"Error saving to database: {e}")
+        return jsonify({"message": "Failed to save data", "error": str(e)}), 500
     return jsonify({"message": "Data saved successfully"})
 
 
