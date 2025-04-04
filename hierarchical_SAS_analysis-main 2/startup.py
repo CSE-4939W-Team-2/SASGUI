@@ -96,13 +96,13 @@ def main(shape):
     return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'length' : '%s'%(predicted_dimension.get('length')[0]) , "q2" : li,'radius' : '%s'%(predicted_dimension.get('radius')[0])}
    if shape == "cs_disk":
        return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'radius' : '%s'%(predicted_dimension.get('radius')[0]) , "q2" : li, 'pd' : '%s'%(predicted_dimension.get('polydispersity')[0]), 'thickness' : '%s'%(predicted_dimension.get('shell')[0])}
-
-def main2():
+print("Running startup.py...")
+def main2(filepath):
    bg_constant = 0.001
    targets = ['cylinder', 'disk', 'sphere', 'cs_cylinder', 'cs_disk', 'cs_sphere']
 #   classifiers, hierarchical_map, regressors = init()
-   test_spectra = np.log10(np.loadtxt('hierarchical_SAS_analysis-main 2/data/experimental_spectra.csv')+bg_constant).reshape(1,-1)
-   est_spectra = np.loadtxt('hierarchical_SAS_analysis-main 2/data/experimental_spectra.csv')+bg_constant
+   test_spectra = np.log10(np.loadtxt(filepath)+bg_constant).reshape(1,-1)
+   est_spectra = np.loadtxt(filepath)+bg_constant
    print(est_spectra)
    li = np.array(est_spectra).tolist()
    print(li)
@@ -114,17 +114,30 @@ def main2():
    print(predicted_morphology)
    print(predicted_dimension)
    if predicted_morphology == "cs_sphere":
-       return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'radius' : '%s'%(predicted_dimension.get('radius')[0]) , "q2" : li, 'pd' : '%s'%(predicted_dimension.get('polydispersity')[0]), 'thickness' : '%s'%(predicted_dimension.get('shell')[0])}
+       return {'morph' : '/coreShellSphere', 'coreShellSphereRadius' : '%s'%(predicted_dimension.get('radius')[0]) , 
+               'coreShellSpherePolydispersity' : '%s'%(predicted_dimension.get('polydispersity')[0]), 
+               'coreShellSphereThickness' : '%s'%(predicted_dimension.get('shell')[0])}
    if predicted_morphology == "cs_cylinder":
-       return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'radius' : '%s'%(predicted_dimension.get('radius')[0]) , "q2" : li, 'pd' : '%s'%(predicted_dimension.get('polydispersity')[0]), 'thickness' : '%s'%(predicted_dimension.get('shell')[0])}
+       return {'morph' : '/coreShellCylinder', 'coreShellCylinderRadius' : '%s'%(predicted_dimension.get('radius')[0]) , 
+               'coreShellCylinderPolydispersity' : '%s'%(predicted_dimension.get('polydispersity')[0]), 
+               'coreShellCylinderThickness' : '%s'%(predicted_dimension.get('shell')[0]),
+               'coreShellCylinderLength' : '%s'%(predicted_dimension.get('length')[0])}
    if predicted_morphology == "cylinder":
-       return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'length' : '%s'%(predicted_dimension.get('length')[0]) , "q2" : li,'radius' : '%s'%(predicted_dimension.get('radius')[0])}
+       return {'morph' : '/cylinder', 'cylinderLength' : '%s'%(predicted_dimension.get('length')[0]) , 
+               'cylinderRadius' : '%s'%(predicted_dimension.get('radius')[0]), 
+               'cylinderPolydispersity' : '%s'%(predicted_dimension.get('polydispersity')[0])}
    if predicted_morphology == "sphere":
-       return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), "q2" : li,'radius' : '%s'%(predicted_dimension.get('radius')[0])}
+       return {'morph' : '/sphere', 'sphereRadius' : '%s'%(predicted_dimension.get('radius')[0]), 
+               'spherePolydispersity' : '%s'%(predicted_dimension.get('polydispersity')[0])}
    if predicted_morphology == "disk":
-    return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'length' : '%s'%(predicted_dimension.get('length')[0]) , "q2" : li,'radius' : '%s'%(predicted_dimension.get('radius')[0])}
+       return {'morph' : '/disk', 'diskLength' : '%s'%(predicted_dimension.get('length')[0]),
+               'diskRadius' : '%s'%(predicted_dimension.get('radius')[0]), 
+               'diskPolydispersity' : '%s'%(predicted_dimension.get('polydispersity')[0])}
    if predicted_morphology == "cs_disk":
-       return {'morph' : 'Predicted Morphology: %s'%(predicted_morphology), 'radius' : '%s'%(predicted_dimension.get('radius')[0]) , "q2" : li, 'pd' : '%s'%(predicted_dimension.get('polydispersity')[0]), 'thickness' : '%s'%(predicted_dimension.get('shell')[0])}
+       return {'morph' : '/coreShellDisk', 'coreShellDiskRadius' : '%s'%(predicted_dimension.get('radius')[0]),
+                'coreShellDiskPolydispersity' : '%s'%(predicted_dimension.get('polydispersity')[0]),
+                'coreShellDiskThickness' : '%s'%(predicted_dimension.get('shell')[0]),
+                'coreShellDiskLength' : '%s'%(predicted_dimension.get('length')[0])}
 
 
 classifiers, hierarchical_map, regressors = init()

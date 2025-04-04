@@ -1,9 +1,28 @@
 #revision with highQ scaling and constant plateau addition 1-13-22
 import numpy as np
 import pandas as pd
+import os
+import glob
 
-def load_spec(fn, q):
-   indf = pd.DataFrame(pd.read_csv("example_curve.csv"))
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Path to loaders.py
+DATA_DIR = os.path.join(BASE_DIR, "data") 
+
+def get_latest_csv(data_directory):
+    """Finds the most recent CSV file in the specified data directory."""
+    list_of_files = glob.glob(os.path.join(data_directory, "*.csv"))  # Get all CSV files
+    if not list_of_files:
+        return None  # Return None if no files are found
+    latest_file = max(list_of_files, key=os.path.getctime)  # Get most recent file
+    return latest_file
+
+def load_spec(fn =None,q= None):
+   """Loads the latest CSV file from the data directory if fn is not provided."""
+   if fn is None:
+      fn = get_latest_csv(DATA_DIR)  # Automatically find latest CSV
+      if fn is None:
+         raise FileNotFoundError("No CSV files found in the data directory.")
+   indf = pd.DataFrame(pd.read_csv(fn))
    print(indf)
    spec = np.log10(np.array(indf.loc[:,q])+1.)
    return(spec)
