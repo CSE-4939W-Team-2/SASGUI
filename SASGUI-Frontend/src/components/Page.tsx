@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Box } from "./cube.js";
 import { currentMorphology } from "../atoms/morphologyTemplate.js";
+import FinalRuler from "../assets/FinalRuler.png";
 export interface sliderObj {
     label: string,
     minVal: number,
@@ -72,6 +73,14 @@ export default function Page(props:Props){
                     <Box shapeType={morphology.replace(/\//g, '')} position={[0, 0, 0]} />
                 </Canvas>
             </div>
+            {/* Image Section */}
+            <div style={{ display: morphology == "/"? "none" : "flex", justifyContent: "center", alignItems: "center", marginTop: "20px" }}>
+                        <img
+                            src={FinalRuler} // Using the imported path
+                            alt="nanometer ruler"
+                            style={{ width: "50px", height: "auto", objectFit: "contain" }}
+                        />
+                    </div>
         </div>
     </div>)
 }
