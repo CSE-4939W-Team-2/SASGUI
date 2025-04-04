@@ -294,10 +294,8 @@ def upload_file():
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(file_path)
 
-        #These break file upload
         file_size = os.path.getsize(file_path)
         file_extension = os.path.splitext(file.filename)[1]
-        #This breaks file upload too
         logger.info(
             "file_uploaded",
             filename=file.filename,
