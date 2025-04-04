@@ -1,0 +1,4 @@
+structlog
+flask
+flask-cors
+numpy
