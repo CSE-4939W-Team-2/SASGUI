@@ -74,7 +74,7 @@ export default function Page(props:Props){
                 </Canvas>
             </div>
             {/* Image Section */}
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "20px" }}>
+            <div style={{ display: morphology=="/"? "none": "flex", justifyContent: "center", alignItems: "center", marginTop: "20px" }}>
                         <img
                             src={FinalRuler} // Using the imported path
                             alt="nanometer ruler"
