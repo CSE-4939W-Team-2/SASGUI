@@ -132,13 +132,14 @@ export function Box({ shapeType, ...props }: BoxProps) {
       </mesh>
       <mesh position={[0, 0, 0]} scale={[1, 1.01, 1]} >
         <cylinderGeometry args={[coreshelldskradius + coreshelldskthickness, coreshelldskradius + coreshelldskthickness, coreshelldsklength, 32]} />
-        <meshStandardMaterial color="white" transparent={true} opacity={0.3} />
+        <meshStandardMaterial color="orange" transparent={true} opacity={0.3} />
       </mesh>
         </>
       );
       break;
     default:
-    console.log("penis penis penis", coreShellSphRadius);
+    console.warn(`Invalid shapeType received: ${shapeType}`);
+      return null;
   } 
 
   return (
