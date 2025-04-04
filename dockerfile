@@ -4,9 +4,12 @@ WORKDIR /python-docker
 RUN pip3 install flask
 RUN pip3 install flask-cors
 RUN pip3 install sasmodels
-COPY /backend /python-docker/backend
+RUN pip3 install scikit-learn
+RUN pip3 install pandas
+RUN pip3 install matplotlib
 COPY /database /python-docker/database
 COPY /full_model /python-docker/full_model
+COPY /api.py /python-docker
+COPY /q_200.txt /python-docker
 COPY ["/hierarchical_SAS_analysis-main 2", "/python-docker/hierarchical_SAS_analysis-main 2"]
-WORKDIR /python-docker/backend
 CMD [ "python3", "-m" , "flask", "--app", "api", "run", "--host=0.0.0.0"]

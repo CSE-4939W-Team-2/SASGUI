@@ -38,7 +38,7 @@ export default function ParameterSlider(props:Props){
     //Handles and validates text entries. If they are out of bounds, sets them to the maximum bound
     const handleTextEnter = () => {
             const newValue = parseFloat(boxValue);
-            if (newValue >= props.minVal && newValue<= props.maxVal){//Check if in range
+            if (newValue >= props.minVal){//Check if in range
                 setRecValue(newValue);
             }
             else if (newValue <= props.minVal){//Value too low, set to min

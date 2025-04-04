@@ -237,6 +237,7 @@ def log_request(f):
 
     return decorated
 
+import startup
 
 app = Flask(__name__)
 app.wsgi_app = Middleware(app.wsgi_app)
@@ -269,6 +270,10 @@ def log_performace(logger, operation, start_time, **kwargs):
 DATABASE = {}
 
 # FIle Handling
+import os
+
+UPLOAD_FOLDER = os.path.abspath("hierarchical_SAS_analysis-main 2/data") # Directly use the existing folder path
+
 @app.route('/upload', methods=['POST'])
 @log_request
 def upload_file():
@@ -348,6 +353,23 @@ def chd():
                 )
                 return jsonify({'message': 'CHD processing failed'}), 500
             
+    if file:
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)  # Fixed filename
+        file.save(file_path)
+        #return jsonify({'message': 'File successfully uploaded', 'file_path': file_path}), 200
+        result = startup.main2(file_path)
+        print("Function output:", result)  # Check if function returns a valid dictionary
+        os.remove(file_path)
+        return jsonify(result)
+    return jsonify({'message': 'Fatal error in ML model'}), 400
+    
+
+@app.route("/shape", methods=['POST','GET'])
+def chd():
+    if request.method == 'POST':
+            json  = request.get_json()
+            shape = json.get('shape')
+            return startup.main(shape) #returns dimensions for morphology
     return {'name': 5}
 
 
