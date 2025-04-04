@@ -69,7 +69,7 @@ export default function SaveRemote() {
                 diskData: diskData,
                 coreShellDiskData: coreShellDiskData            
             }        
-            fetch('http://localhost:5000/save_to_database', {//Make the request
+            fetch('http://sasgui.cse.uconn.edu:5000/save_to_database', {//Make the request
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: JSON.stringify({
