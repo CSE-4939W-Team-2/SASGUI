@@ -275,7 +275,8 @@ import os
 UPLOAD_FOLDER = os.path.abspath("hierarchical_SAS_analysis-main 2/data") # Directly use the existing folder path
 
 @app.route('/upload', methods=['POST'])
-@log_request
+#Breaks file upload to have @log_request uncommented
+#@log_request
 def upload_file():
     operation_start = time.time()
     logger.info("file_upload_started")
@@ -290,17 +291,19 @@ def upload_file():
         return jsonify({'message': 'No file selected for uploading'}), 400
     
     try:
-        file.save(os.path.join("./", file.filename))
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file.save(file_path)
 
-        file_size = os.path.getsize(file.filename)
+        #These break file upload
+        file_size = os.path.getsize(file_path)
         file_extension = os.path.splitext(file.filename)[1]
-
+        #This breaks file upload too
         logger.info(
             "file_uploaded",
             filename=file.filename,
             file_size_bytes=file_size,
             file_extension=file_extension,
-            context_type=file.context_type
+            context_type=file.content_type
         )
 
         log_performace(
@@ -310,8 +313,9 @@ def upload_file():
             file_size_bytes=file_size,
             filename=file.filename
         )
-
-        return jsonify({'message': 'File successfully uploaded'}), 200
+        result = startup.main2(file_path)
+        os.remove(file_path)
+        return jsonify(result)
     except Exception as e:
         logger.error(
             "file_upload_failed",
@@ -364,13 +368,7 @@ def chd():
     return jsonify({'message': 'Fatal error in ML model'}), 400
     
 
-@app.route("/shape", methods=['POST','GET'])
-def chd():
-    if request.method == 'POST':
-            json  = request.get_json()
-            shape = json.get('shape')
-            return startup.main(shape) #returns dimensions for morphology
-    return {'name': 5}
+
 
 
 # Param Updates, dont think we use this -- Not added to logging
@@ -783,7 +781,7 @@ MORPHOLOGY_FUNCTIONS = {
 @app.route('/simulate_graph', methods=['POST'])
 @log_request
 def simulate_graph():
-    operation_start = time.time()
+    #operation_start = time.time()
     try:
         data = request.get_json()
 
@@ -802,23 +800,23 @@ def simulate_graph():
             )
             return jsonify({"error": "Invalid morphology"}), 400
 
-        logger.info(
+        """logger.info(
             "simulate_graph_request",
             morphology=morphology,
             parameters=data
-        )
+        )"""
 
         # Call the function
         response = MORPHOLOGY_FUNCTIONS[morphology](data)
 
-        logger.info("simulate_graph_success", morphology=morphology)
+        #logger.info("simulate_graph_success", morphology=morphology)
 
-        log_performace(
+        """log_performace(
             logger,
             "simulate_graph",
             operation_start,
             morphology=morphology
-        )
+        )"""
 
         return jsonify(response)
     except Exception as e:
