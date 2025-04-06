@@ -99,7 +99,7 @@ def save_to_database():
         if 'name' in data:
             dbFunctions.add_to_scans(file_name = data['name'], file_data = data['data'], user_id = data['userId'])
         else:
-            dbFunctions.add_to_users(user_id = data['userId'])
+            dbFunctions.add_to_users(user_id = data['userId'], username = ['username'], password = ['password'])
     except Exception as e:
         print(f"Error saving to database: {e}")
         return jsonify({"message": "Failed to save data", "error": str(e)}), 500

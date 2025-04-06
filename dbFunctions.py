@@ -43,8 +43,8 @@ def query_table(db_location, table_name, column_name=None, value=None):
 
 
 'Adds a user to the users table'
-def add_to_users(user_id):
-    add_to_table(db_location, user_table, (user_id))
+def add_to_users(user_id, username, password): # Securely speaking this should be a hashed password, but this is basically set up to accept any string.
+    add_to_table(db_location, user_table, (user_id, password, username))
     
 'Adds a scan along with parameters to the scans table'
 def add_to_scans(file_name, file_data, user_id = 123123123):
