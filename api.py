@@ -90,21 +90,91 @@ def get_3d_model():
     return jsonify({"message": "3D Model generated", "model": model_data})
 
 
-# DB # TODO: update
 @app.route('/save_to_database', methods=['POST'])
 def save_to_database():
     """Saves prediction or curve data to the database."""
     try:
         data = request.json
         if 'name' in data:
-            dbFunctions.add_to_scans(file_name = data['name'], file_data = data['data'], user_id = data['userId'])
+            dbFunctions.add_to_scans(file_name = data.get('name'), file_data = data.get('data'), userId = data.get('userId'))
         else:
-            dbFunctions.add_to_users(user_id = data['userId'], username = ['username'], password = ['password'])
+            dbFunctions.add_to_users(username = data.get('username'), password = data.get('password'), email = data.get('email'))
     except Exception as e:
         print(f"Error saving to database: {e}")
         return jsonify({"message": "Failed to save data", "error": str(e)}), 500
     return jsonify({"message": "Data saved successfully"})
 
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        if not username or not password:
+            return jsonify({"message": "Missing username or password"}), 400
+        
+        db_result = dbFunctions.get_id_by_username(username)
+        if not db_result:
+            return jsonify({"message": "Unknown username or password"}), 401
+        else:
+            userId = db_result.get("userId")
+        
+        user_credentials = dbFunctions.get_user_info(userId)
+        
+        if user_credentials and user_credentials['password'] == password and user_credentials['username'] == username:
+            return jsonify({"message": "Login successful", "userId": user_credentials['userId']}), 200
+        else:
+            return jsonify({"message": "Unknown username or password"}), 401
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
+    
+@app.route('/get_security_question', methods=['POST'])
+def get_security_question():
+    try:
+        data = request.json
+        email = data.get('email')
+        db_result = dbFunctions.get_id_by_username(email)
+        if not db_result:
+            return jsonify({"message": "Unknown email"}), 401
+        else:
+            userId = db_result.get("userId")
+        user_credentials = dbFunctions.get_user_info(userId)
+        return jsonify({"message": "email found", "security_question": user_credentials["security_question"], "userId": user_credentials["userId"]}), 200
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
+
+@app.route('/reset_password_with_security_question', methods=['POST'])
+def reset_password_with_security_question():
+    """Resets the password for a user based on security question answer."""
+    try:
+        data = request.json
+        userId = data.get('userId')
+        security_answer = data.get('security_answer')
+        new_password = data.get('password')
+
+        if not security_answer or not new_password:
+            return jsonify({"message": "Missing required fields"}), 400
+
+        user_credentials = dbFunctions.get_user_info(userId)
+        if user_credentials and user_credentials['security_answer'] == security_answer:
+            # Update the password in the database
+            dbFunctions.change_password_by_userId(userId, new_password)
+            return jsonify({"message": "Password reset successful"}), 200
+        else:
+            return jsonify({"message": "Incorrect security answer"}), 401
+
+    except Exception as e:
+        print(f"Error during password reset: {e}")
+        return jsonify({"message": "An error occurred during password reset", "error": str(e)}), 500
+    
+    
+    
+        
+    
+    
+    
 
 @app.route('/get_database_data', methods=['GET'])
 def get_database_data():
