@@ -64,24 +64,24 @@ def add_to_users(username, password, email, securityQuestion = '', securityAnswe
     
     
 'Adds a scan along with parameters to the scans table'
-def add_to_scans(file_name, file_data, user_id = 1):
-    columns = ["userID", "fileName", "fileData"]
-    new_values = (user_id, file_name, file_data)
+def add_to_scans(file_name, file_data, userId = 1):
+    columns = ["userId", "fileName", "fileData"]
+    new_values = (userId, file_name, file_data)
     add_to_table(db_location, scans_table, columns, new_values)
 
 
 
 
 'Retrieves all scans for a specific userId'
-def get_user_scans(user_id):
-    return query_table(db_location, "scans", "userId", user_id)
+def get_user_scans(userId):
+    return query_table(db_location, "scans", "userId", userId)
 
 """Retrieves user info for a specific userId."""
-def get_user_info(user_id):
-    result = query_table(db_location, user_table, "userId", user_id)
+def get_user_info(userId):
+    result = query_table(db_location, user_table, "userId", userId)
     if result:
         return {
-            "user_id": result[0][0], #I'm aware this is redundant
+            "userId": result[0][0], #I'm aware this is redundant
             "username": result[0][1],
             "password": result[0][2],
             "email": result[0][3],
@@ -95,7 +95,7 @@ def get_id_by_username(username):
     result = query_table(db_location, user_table, "username", username)
     if result:
         return {
-            "user_id": result[0][0]
+            "userId": result[0][0]
         }
     return None
 
@@ -104,7 +104,7 @@ def get_id_by_email(email):
     result = query_table(db_location, user_table, "email", email)
     if result:
         return {
-            "user_id": result[0][0]
+            "userId": result[0][0]
         }
     return None
 
@@ -120,15 +120,14 @@ def get_scan_parameters(fileName):
     return None
 
 
-"""Changes the password for a specific user_id."""
-def change_password_by_user_id(user_id, new_password):
+"""Changes the password for a specific userId."""
+def change_password_by_userId(userId, new_password):
     if not new_password:
         raise ValueError("New password cannot be empty.")
-    change_entry(db_location, user_table, "password", new_password, "userId", user_id)
+    change_entry(db_location, user_table, "password", new_password, "userId", userId)
 
 
 
 
 if __name__ == "__main__":
-    print("Nothing to run here")
-    print(query_table(db_location, user_table, 'username', 'bnuiaszebngvujk'))  # Test to see if the database connection works and retrieves users
+    print("Nothing to run here")  # Test to see if the database connection works and retrieves users
