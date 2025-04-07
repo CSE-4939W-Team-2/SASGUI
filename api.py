@@ -1,23 +1,88 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
+from sasmodels.core import load_model
+from sasmodels.direct_model import call_kernel
+import sys
+sys.path.append('hierarchical_SAS_analysis-main 2')
+import numpy as np
+import startup
 import dbFunctions
 
-
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
+# TODO: database connection
+DATABASE = {}
 
 # FIle Handling
+import os
+
+UPLOAD_FOLDER = os.path.abspath("hierarchical_SAS_analysis-main 2/data") # Directly use the existing folder path
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """Handles file upload."""
     if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+        return jsonify({'message': 'No file part in the request'}), 400
     file = request.files['file']
-    filepath = os.path.join("uploads", file.filename)
+    if file.filename == '':
+        return jsonify({'message': 'No file selected for uploading'}), 400
+    if file:
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)  # Fixed filename
+        file.save(file_path)
+        #return jsonify({'message': 'File successfully uploaded', 'file_path': file_path}), 200
+        result = startup.main2(file_path)
+        print("Function output:", result)  # Check if function returns a valid dictionary
+        os.remove(file_path)
+        return jsonify(result)
+    return jsonify({'message': 'Fatal error in ML model'}), 400
     
-    # TODO: Save file to gibven path
-    file.save(filepath)
+
+@app.route("/shape", methods=['POST','GET'])
+def chd():
+    if request.method == 'POST':
+            json  = request.get_json()
+            shape = json.get('shape')
+            return startup.main(shape) #returns dimensions for morphology
+    return {'name': 5}
+
+@app.route('/get_all_files', methods=['GET'])
+def get_all_files():
+    """Returns the names of all files in the upload folder."""
+    try:
+        # List all files in the upload folder
+        file_names = os.listdir(UPLOAD_FOLDER)
+        
+        # Filter out directories, keep only files
+        file_names = [f for f in file_names if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+        
+        return jsonify({"message": "Files retrieved successfully", "files": file_names}), 200
+    except Exception as e:
+        return jsonify({"message": "Error retrieving files", "error": str(e)}), 500
     
-    return jsonify({"message": "File uploaded successfully", "filepath": filepath})
+@app.route('/delete_file', methods=['DELETE'])
+def delete_file():
+    """Deletes a specified file from the upload folder."""
+    try:
+        # Get the filename from the request data
+        data = request.get_json()
+        file_name = data.get('file_name')
+        
+        if not file_name:
+            return jsonify({"message": "No file name provided"}), 400
+
+        # Construct the full file path
+        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+
+        # Check if file exists
+        if not os.path.exists(file_path):
+            return jsonify({"message": "File not found"}), 404
+        
+        # Remove the file
+        os.remove(file_path)
+        
+        return jsonify({"message": f"File {file_name} deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": "Error deleting file", "error": str(e)}), 500
 
 
 # Param Updates, dont think we use this
@@ -67,15 +132,82 @@ def get_3d_model():
 @app.route('/save_to_database', methods=['POST'])
 def save_to_database():
     """Saves prediction or curve data to the database."""
-    data = request.json #TODO Confirm where data is held within data
-    data = data["data"]
-    if "file_name" in data: #We only have 2 tables, and if curveType is included within the dictionary, we assume that we're adding to the scans table, otherwise we add to users.
-        #TODO ^ Make sure this key is accurate
-        dbFunctions.add_to_scans()
-    else:
-        dbFunctions.add_to_users()
+    try:
+        data = request.json
+        if 'name' in data:
+            dbFunctions.add_to_scans(file_name = data.get('name'), file_data = data.get('data'), userId = data.get('userId'))
+        else:
+            dbFunctions.add_to_users(username = data.get('username'), password = data.get('password'), email = data.get('email'))
+    except Exception as e:
+        print(f"Error saving to database: {e}")
+        return jsonify({"message": "Failed to save data", "error": str(e)}), 500
     return jsonify({"message": "Data saved successfully"})
 
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        if not username or not password:
+            return jsonify({"message": "Missing username or password"}), 400
+        
+        db_result = dbFunctions.get_id_by_username(username)
+        if not db_result:
+            return jsonify({"message": "Unknown username or password"}), 401
+        else:
+            userId = db_result.get("userId")
+        
+        user_credentials = dbFunctions.get_user_info(userId)
+        
+        if user_credentials and user_credentials['password'] == password and user_credentials['username'] == username:
+            return jsonify({"message": "Login successful", "userId": user_credentials['userId']}), 200
+        else:
+            return jsonify({"message": "Unknown username or password"}), 401
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
+    
+@app.route('/get_security_question', methods=['POST'])
+def get_security_question():
+    try:
+        data = request.json
+        email = data.get('email')
+        db_result = dbFunctions.get_id_by_username(email)
+        if not db_result:
+            return jsonify({"message": "Unknown email"}), 401
+        else:
+            userId = db_result.get("userId")
+        user_credentials = dbFunctions.get_user_info(userId)
+        return jsonify({"message": "email found", "security_question": user_credentials["security_question"], "userId": user_credentials["userId"]}), 200
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
+
+@app.route('/reset_password_with_security_question', methods=['POST'])
+def reset_password_with_security_question():
+    """Resets the password for a user based on security question answer."""
+    try:
+        data = request.json
+        userId = data.get('userId')
+        security_answer = data.get('security_answer')
+        new_password = data.get('password')
+
+        if not security_answer or not new_password:
+            return jsonify({"message": "Missing required fields"}), 400
+
+        user_credentials = dbFunctions.get_user_info(userId)
+        if user_credentials and user_credentials['security_answer'] == security_answer:
+            # Update the password in the database
+            dbFunctions.change_password_by_userId(userId, new_password)
+            return jsonify({"message": "Password reset successful"}), 200
+        else:
+            return jsonify({"message": "Incorrect security answer"}), 401
+
+    except Exception as e:
+        print(f"Error during password reset: {e}")
+        return jsonify({"message": "An error occurred during password reset", "error": str(e)}), 500
+    
 
 @app.route('/get_database_data', methods=['GET'])
 def get_database_data():
@@ -110,6 +242,257 @@ def output_3d_model():
 
 
 # -----
+#SASVIEW
+def process_request(json, model_name, param_mapping):
+    """Helper function to process requests and generate scattering data."""
+    q = np.loadtxt('q_200.txt', delimiter=',', dtype=float)
+    pars = param_mapping.copy()
+    
+    for key, json_key in param_mapping.items():
+        if json_key in json:
+            pars[key] = json.get(json_key)
+    
+    model = load_model(model_name)
+    kernel = model.make_kernel([q])
+    Iq = call_kernel(kernel, pars) + 0.001
+    
+    return {'xval': np.array(q).tolist(), 'yval': np.array(Iq).tolist()}
+"""@app.route("/simulate_graph", methods=["POST"])
+def sim_graph():
+    if request.method == 'POST':
+        json_data = request.get_json()
+        return(json_data)"""
+
+def graphASphere(data):
+    """'radius_pd_type':'schulz',
+            'radius_pd_n' : '40',
+            'radius_pd_nsigma': '3',"""
+    param_mapping = {
+            'background': 'sphereBackground',
+            'radius_pd': 'spherePolydispersity',
+            'radius' : 'sphereRadius',
+            'scale': 'sphereScale',
+            'sld': 'sphereScatteringLengthDensity',
+            'sld_solvent': 'sphereScatteringLengthSolvent',
+            'radius_pd_type':'schulz',
+            'radius_pd_n' : 40,
+            'radius_pd_nsigma': 3
+
+    }
+    return process_request(data, 'sphere', param_mapping)
+def graphACoreShellSphere(data):
+    param_mapping = {
+            'background': 'coreShellSphereBackground',
+            'radius_pd': 'coreShellSpherePolydispersity',
+            'radius': 'coreShellSphereRadius',
+            'scale': 'coreShellSphereScale',
+            'sld_core': 'coreShellSphereScatteringLengthCore',
+            'sld_shell': 'coreShellSphereScatteringLengthShell',
+            'sld_solvent': 'coreShellSphereScatteringLengthSolvent',
+            'thickness': 'coreShellSphereThickness',
+            'radius_pd_type':'schulz',
+            'radius_pd_n' : 40,
+            'radius_pd_nsigma': 3
+    }
+    return process_request(data, 'core_shell_sphere', param_mapping)
+
+def graphACylinder(data):
+    param_mapping = {
+            'background': 'cylinderBackground',
+            'length': 'cylinderLength',
+            'radius_pd': 'cylinderPolydispersity',
+            'radius': 'cylinderRadius',
+            'scale': 'cylinderScale',
+            'sld': 'cylinderScatteringLengthDensity',
+            'sld_solvent': 'cylinderScatteringLengthSolvent',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
+    }
+    return process_request(data, 'cylinder', param_mapping)
+def graphACoreShellCylinder(data):
+    param_mapping = {
+            'background': 'coreShellCylinderBackground',
+            'length': 'coreShellCylinderLength',
+            'radius_pd': 'coreShellCylinderPolydispersity',
+            'radius': 'coreShellCylinderRadius',
+            'scale': 'coreShellCylinderScale',
+            'sld_core': 'coreShellCylinderScatteringLengthCore',
+            'sld_shell': 'coreShellCylinderScatteringLengthShell',
+            'sld_solvent': 'coreShellCylinderScatteringLengthSolvent',
+            'thickness': 'coreShellCylinderThickness',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
+    }
+    return process_request(data, 'core_shell_cylinder', param_mapping)
+def graphADisk(data):
+    param_mapping = {
+            'background': 'diskBackground',
+            'length': 'diskLength',
+            'radius_pd': 'diskPolydispersity',
+            'radius': 'diskRadius',
+            'scale': 'diskScale',
+            'sld': 'diskScatteringLengthDensity',
+            'sld_solvent': 'diskScatteringLengthSolvent',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
+    }
+    return process_request(data, 'cylinder', param_mapping)
+
+def graphACoreShellDisk(data):
+    param_mapping = {
+            'background': 'coreShellDiskBackground',
+            'length': 'coreShellDiskLength',
+            'radius_pd': 'coreShellDiskPolydispersity',
+            'radius': 'coreShellDiskRadius',
+            'scale': 'coreShellDiskScale',
+            'sld_core': 'coreShellDiskScatteringLengthCore',
+            'sld_shell': 'coreShellDiskScatteringLengthShell',
+            'sld_solvent': 'coreShellDiskScatteringLengthSolvent',
+            'thickness': 'coreShellDiskThickness',
+            'radius_pd_type': 'schulz',
+            'radius_pd_n': 40,
+            'radius_pd_nsigma': 3
+    }
+    return process_request(data, 'core_shell_cylinder', param_mapping)
+
+MORPHOLOGY_FUNCTIONS = {
+    "Sphere": graphASphere,
+    "CoreShellSphere": graphACoreShellSphere,
+    "Cylinder": graphACylinder,
+    "CoreShellCylinder": graphACoreShellCylinder,
+    "Disk": graphADisk,
+    "CoreShellDisk": graphACoreShellDisk
+}
+
+@app.route('/simulate_graph', methods=['POST'])
+def simulate_graph():
+    data = request.get_json()
+
+    if not data or "morphology" not in data:
+        return jsonify({"error": "Morphology not specified"}), 400
+
+    morphology = data["morphology"]
+    
+    if morphology not in MORPHOLOGY_FUNCTIONS:
+        return jsonify({"error": "Invalid morphology"}), 400
+
+    # Call the function
+    response = MORPHOLOGY_FUNCTIONS[morphology](data)
+
+    return jsonify(response)
+# @app.route("/graphcsd", methods=['POST','GET'])
+# def chartcsd():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'length': 'h',
+#             'radius': 'radius',
+#             'background': 0.001,
+#             'scale': 1,
+#             'length_pd': 0.5,
+#             'length_pd_type': 'schulz',
+#             'length_pd_n': 40,
+#             'length_pd_nsigma': 3
+#         }
+#         return process_request(json_data, 'cylinder', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/csd", methods=['POST','GET'])
+# def csd():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'length': 'h',
+#             'radius': 'radius',
+#             'thickness': 'thickness',
+#             'sld_core': 'sldcore',
+#             'sld_shell': 'sldshell',
+#             'sld_solvent': 'sldsolvent',
+#             'background': 'background',
+#             'scale': 'scale',
+#             'length_pd': 'pd'
+#         }
+#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/graph", methods=['POST','GET'])
+# def chart():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'length': 'h',
+#             'radius': 'radius',
+#             'scale': 'scale',
+#             'sld': 'sld',
+#             'sld_solvent': 'sldsolvent',
+#             'background': 'background',
+#             'length_pd': 'pd'
+#         }
+#         return process_request(json_data, 'cylinder', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/sph", methods=['POST','GET'])
+# def spheregraph():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'radius': 'sphereRadius',
+#             'scale': 'sphereScale',
+#             'sld': 'sphereScatteringLengthDensity',
+#             'background': 'sphereBackground',
+#             'radius_pd': 'spherePolydispersity',
+#             'sld_solvent': 'sphereScatteringLengthSolvent'
+#         }
+#         return process_request(json_data, 'sphere', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/css", methods=['POST','GET'])
+# def cssgraph():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'radius': 'radius',
+#             'thickness': 'thickness',
+#             'scale': 'scale',
+#             'background': 'background',
+#             'sld_core': 'sldcore',
+#             'sld_shell': 'sldshell',
+#             'sld_solvent': 'sldsolvent',
+#             'radius_pd': 'pd'
+#         }
+#         return process_request(json_data, 'core_shell_sphere', param_mapping)
+#     return {'name': 5}
+
+# @app.route("/csc", methods=['POST','GET'])
+# def cscgraph():
+#     if request.method == 'POST':
+#         json_data = request.get_json()
+#         param_mapping = {
+#             'radius': 'radius',
+#             'thickness': 'thickness',
+#             'length': 'h'
+#         }
+#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
+#     return {'name': 5}
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+"""def graphASphere(data):
+    param_mapping = {
+            'radius': 'sphereRadius',
+            'scale': 'sphereScale',
+            'sld': 'sphereScatteringLengthDensity',
+            'background': 'sphereBackground',
+            'radius_pd': 'spherePolydispersity',
+            'sld_solvent': 'sphereScatteringLengthSolvent'
+    }
+    return process_request(data, 'sphere', param_mapping)"""
+

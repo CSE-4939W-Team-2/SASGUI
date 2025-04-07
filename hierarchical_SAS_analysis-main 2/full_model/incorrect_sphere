@@ -1,0 +1,15 @@
+95 TRUE radius:87.346879 polydispersity:0.110293 contrast:1.552473 REGRESSED cs_sphere radius:108.180910 shell:58.054827 polydispersity:0.268501 contrast:1.342567 contrast_2:1.672159
+121 TRUE radius:42.428366 polydispersity:0.108397 contrast:2.118766 REGRESSED cs_sphere radius:48.726521 shell:25.199731 polydispersity:0.220459 contrast:2.086767 contrast_2:1.972841
+153 TRUE radius:79.017905 polydispersity:0.107226 contrast:1.230532 REGRESSED cs_sphere radius:101.526489 shell:54.935036 polydispersity:0.256096 contrast:1.048738 contrast_2:1.761260
+156 TRUE radius:46.318236 polydispersity:0.113759 contrast:1.143729 REGRESSED cs_sphere radius:61.686296 shell:31.602038 polydispersity:0.214248 contrast:1.042215 contrast_2:1.601088
+202 TRUE radius:417.302318 polydispersity:0.101566 contrast:2.573403 REGRESSED cs_sphere radius:420.972033 shell:202.792577 polydispersity:0.227625 contrast:2.441262 contrast_2:1.227148
+535 TRUE radius:40.826928 polydispersity:0.104746 contrast:0.992775 REGRESSED cs_sphere radius:54.181915 shell:27.247851 polydispersity:0.212306 contrast:0.877491 contrast_2:1.725131
+583 TRUE radius:56.486719 polydispersity:0.100977 contrast:1.814954 REGRESSED cs_sphere radius:68.966106 shell:37.088167 polydispersity:0.248683 contrast:1.728749 contrast_2:1.649276
+588 TRUE radius:114.884364 polydispersity:0.112318 contrast:1.162386 REGRESSED cs_sphere radius:154.989434 shell:80.427719 polydispersity:0.249140 contrast:0.994588 contrast_2:1.430022
+685 TRUE radius:42.534618 polydispersity:0.113115 contrast:1.082446 REGRESSED cs_sphere radius:56.771449 shell:28.578447 polydispersity:0.209070 contrast:0.976303 contrast_2:1.686840
+699 TRUE radius:40.231986 polydispersity:0.185096 contrast:0.547124 REGRESSED cs_sphere radius:51.992823 shell:29.951942 polydispersity:0.257153 contrast:0.513940 contrast_2:1.569398
+750 TRUE radius:314.690550 polydispersity:0.105523 contrast:3.432445 REGRESSED cs_sphere radius:306.976507 shell:141.197751 polydispersity:0.251611 contrast:3.419210 contrast_2:1.391852
+794 TRUE radius:41.168474 polydispersity:0.107480 contrast:0.597125 REGRESSED cs_sphere radius:50.207479 shell:28.244449 polydispersity:0.247437 contrast:0.540556 contrast_2:1.573927
+830 TRUE radius:101.948100 polydispersity:0.101537 contrast:1.368456 REGRESSED cs_sphere radius:131.395101 shell:69.432523 polydispersity:0.252598 contrast:1.202830 contrast_2:1.485689
+873 TRUE radius:93.355799 polydispersity:0.100570 contrast:3.383820 REGRESSED cs_sphere radius:86.915317 shell:45.181660 polydispersity:0.266040 contrast:3.358934 contrast_2:1.319165
+898 TRUE radius:45.851409 polydispersity:0.105492 contrast:2.634563 REGRESSED cs_sphere radius:47.394497 shell:26.607937 polydispersity:0.242422 contrast:2.650262 contrast_2:1.731880
