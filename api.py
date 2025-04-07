@@ -148,92 +148,96 @@ def log_request(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         endpoint = request.endpoint
-        method = request.method
-        length = request.content_length or 0
+        if(endpoint != "simulate_graph"):
+            method = request.method
+            length = request.content_length or 0
 
-        request_id = request_id_var.get()
-        if not request_id:
-            request_id = str(uuid.uuid4())
-            request_id_var.set(request_id)
+            request_id = request_id_var.get()
+            if not request_id:
+                request_id = str(uuid.uuid4())
+                request_id_var.set(request_id)
 
-        if not request_start_time_var.get():
-            request_start_time_var.set(time.time())
-        
-        try:
-            params = {}
-            if request.args:
-                params['query'] = request.args.to_dict()
+            if not request_start_time_var.get():
+                request_start_time_var.set(time.time())
             
-            if request.is_json and request.get_json():
-                params['json'] = request.get_json()
-            elif request.form:
-                params['form'] = request.form.to_dict()
-
-            params_str = json.dumps(params)
-            if len(params_str) > 1000:
-                params_str = params_str[:1000] + "..."
-        except Exception as e:
-            params_str = f"Error parsing params: {str(e)}"
-
-        logger.info(
-            "endpoint_called",
-            endpoint=endpoint,
-            method=method,
-            path=request.path,
-            context_length=length,
-            params=params_str,
-            remote_addr=request.remote_addr,
-            user_agent=request.user_agent.string if request.user_agent else None
-        )
-        
-        try:
-            start_time = time.time()
-            result = f(*args, **kwargs)
-            duration = time.time() - start_time
-
-            status_code = result.status_code if hasattr(result, 'status_code') else 200
-
             try:
-                if isinstance(result, tuple):
-                    response_data = result[0]
-                    status_code = result[1] if len(result) > 1 else 200
-                else:
-                    response_data = result
+                params = {}
+                if request.args:
+                    params['query'] = request.args.to_dict()
                 
-                if hasattr(response_data, 'get_json'):
-                    response_data = response_data.get_json()
-                elif not isinstance(response_data, (str, dict, list)):
-                    response_data = str(response_data)
-                
-                response_json_str = json.dumps(response_data)
-                if len(response_json_str) > 1000:
-                    response_str = response_json_str[:1000] + "..."
+                if request.is_json and request.get_json():
+                    params['json'] = request.get_json()
+                elif request.form:
+                    params['form'] = request.form.to_dict()
+
+                params_str = json.dumps(params)
+                if len(params_str) > 1000:
+                    params_str = params_str[:1000] + "..."
             except Exception as e:
-                response_str = "[Response data could not be parsed]"
-            
+                params_str = f"Error parsing params: {str(e)}"
+
             logger.info(
-                "endpoint_succeeded",
+                "endpoint_called",
                 endpoint=endpoint,
                 method=method,
-                duration_ms=round(duration * 1000, 2),
-                status_code=status_code,
-                response_size=len(response_str) if isinstance(response_str, str) else 0,
+                path=request.path,
+                context_length=length,
+                params=params_str,
+                remote_addr=request.remote_addr,
+                user_agent=request.user_agent.string if request.user_agent else None
             )
-
-            return result
-        except Exception as e:
-            duration = time.time() - request_start_time_var.get()
             
-            logger.error(
-                "endpoint_failed",
-                endpoint=endpoint,
-                duration_ms=round(duration * 1000, 2),
-                error=str(e),
-                error_type=type(e).__name__,
-                traceback=traceback.format_exc()
-            )
+            try:
+                start_time = time.time()
+                result = f(*args, **kwargs)
+                duration = time.time() - start_time
 
-            raise
+                status_code = result.status_code if hasattr(result, 'status_code') else 200
+
+                try:
+                    if isinstance(result, tuple):
+                        response_data = result[0]
+                        status_code = result[1] if len(result) > 1 else 200
+                    else:
+                        response_data = result
+                    
+                    if hasattr(response_data, 'get_json'):
+                        response_data = response_data.get_json()
+                    elif not isinstance(response_data, (str, dict, list)):
+                        response_data = str(response_data)
+                    
+                    response_json_str = json.dumps(response_data)
+                    if len(response_json_str) > 1000:
+                        response_str = response_json_str[:1000] + "..."
+                except Exception as e:
+                    response_str = "[Response data could not be parsed]"
+                
+                logger.info(
+                    "endpoint_succeeded",
+                    endpoint=endpoint,
+                    method=method,
+                    duration_ms=round(duration * 1000, 2),
+                    status_code=status_code,
+                    response_size=len(response_str) if isinstance(response_str, str) else 0,
+                )
+
+                return result
+            except Exception as e:
+                duration = time.time() - request_start_time_var.get()
+                
+                logger.error(
+                    "endpoint_failed",
+                    endpoint=endpoint,
+                    duration_ms=round(duration * 1000, 2),
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    traceback=traceback.format_exc()
+                )
+
+                raise
+        else:
+            result = f(*args, **kwargs)
+            return result
 
     return decorated
 

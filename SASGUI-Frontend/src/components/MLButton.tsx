@@ -22,7 +22,6 @@ export default function MLButton() {
                     setter: useSetRecoilState(slider.atomic),
                 })
     });
-    console.log(sphereSetters)
     const coreShellSphereSetters = coreShellSphereSliders.filter((slider:sliderObj)=> slider.predicted === true).map((slider:sliderObj)=>{
             return(
             {

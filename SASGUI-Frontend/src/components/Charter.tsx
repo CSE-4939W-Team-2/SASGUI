@@ -209,6 +209,7 @@ export default function Charter(){
                 dataKey="ICsv"
                 stroke="#8884d8"
                 animationDuration={300}
+                dot={false}
               />
               <Line
                 yAxisId="1"
@@ -216,6 +217,7 @@ export default function Charter(){
                 dataKey="ISim"
                 stroke="#950606"
                 animationDuration={300}
+                dot={false}
               />
               <CartesianGrid stroke="#ccc"/>
               {refHighlightAreaLeft && refHighlightAreaRight ? (
