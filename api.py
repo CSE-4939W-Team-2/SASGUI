@@ -7,6 +7,7 @@ import sys
 sys.path.append('hierarchical_SAS_analysis-main 2')
 import numpy as np
 import startup
+import dbFunctions
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
@@ -43,6 +44,45 @@ def chd():
             shape = json.get('shape')
             return startup.main(shape) #returns dimensions for morphology
     return {'name': 5}
+
+@app.route('/get_all_files', methods=['GET'])
+def get_all_files():
+    """Returns the names of all files in the upload folder."""
+    try:
+        # List all files in the upload folder
+        file_names = os.listdir(UPLOAD_FOLDER)
+        
+        # Filter out directories, keep only files
+        file_names = [f for f in file_names if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+        
+        return jsonify({"message": "Files retrieved successfully", "files": file_names}), 200
+    except Exception as e:
+        return jsonify({"message": "Error retrieving files", "error": str(e)}), 500
+    
+@app.route('/delete_file', methods=['DELETE'])
+def delete_file():
+    """Deletes a specified file from the upload folder."""
+    try:
+        # Get the filename from the request data
+        data = request.get_json()
+        file_name = data.get('file_name')
+        
+        if not file_name:
+            return jsonify({"message": "No file name provided"}), 400
+
+        # Construct the full file path
+        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+
+        # Check if file exists
+        if not os.path.exists(file_path):
+            return jsonify({"message": "File not found"}), 404
+        
+        # Remove the file
+        os.remove(file_path)
+        
+        return jsonify({"message": f"File {file_name} deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": "Error deleting file", "error": str(e)}), 500
 
 
 # Param Updates, dont think we use this
@@ -89,17 +129,85 @@ def get_3d_model():
     return jsonify({"message": "3D Model generated", "model": model_data})
 
 
-# DB # TODO: update
 @app.route('/save_to_database', methods=['POST'])
 def save_to_database():
     """Saves prediction or curve data to the database."""
-    data = request.json
-    
-    # TODO: Implement database save logic
-    DATABASE["latest"] = data  # test database save
-    
+    try:
+        data = request.json
+        if 'name' in data:
+            dbFunctions.add_to_scans(file_name = data.get('name'), file_data = data.get('data'), userId = data.get('userId'))
+        else:
+            dbFunctions.add_to_users(username = data.get('username'), password = data.get('password'), email = data.get('email'))
+    except Exception as e:
+        print(f"Error saving to database: {e}")
+        return jsonify({"message": "Failed to save data", "error": str(e)}), 500
     return jsonify({"message": "Data saved successfully"})
 
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        if not username or not password:
+            return jsonify({"message": "Missing username or password"}), 400
+        
+        db_result = dbFunctions.get_id_by_username(username)
+        if not db_result:
+            return jsonify({"message": "Unknown username or password"}), 401
+        else:
+            userId = db_result.get("userId")
+        
+        user_credentials = dbFunctions.get_user_info(userId)
+        
+        if user_credentials and user_credentials['password'] == password and user_credentials['username'] == username:
+            return jsonify({"message": "Login successful", "userId": user_credentials['userId']}), 200
+        else:
+            return jsonify({"message": "Unknown username or password"}), 401
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
+    
+@app.route('/get_security_question', methods=['POST'])
+def get_security_question():
+    try:
+        data = request.json
+        email = data.get('email')
+        db_result = dbFunctions.get_id_by_username(email)
+        if not db_result:
+            return jsonify({"message": "Unknown email"}), 401
+        else:
+            userId = db_result.get("userId")
+        user_credentials = dbFunctions.get_user_info(userId)
+        return jsonify({"message": "email found", "security_question": user_credentials["security_question"], "userId": user_credentials["userId"]}), 200
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
+
+@app.route('/reset_password_with_security_question', methods=['POST'])
+def reset_password_with_security_question():
+    """Resets the password for a user based on security question answer."""
+    try:
+        data = request.json
+        userId = data.get('userId')
+        security_answer = data.get('security_answer')
+        new_password = data.get('password')
+
+        if not security_answer or not new_password:
+            return jsonify({"message": "Missing required fields"}), 400
+
+        user_credentials = dbFunctions.get_user_info(userId)
+        if user_credentials and user_credentials['security_answer'] == security_answer:
+            # Update the password in the database
+            dbFunctions.change_password_by_userId(userId, new_password)
+            return jsonify({"message": "Password reset successful"}), 200
+        else:
+            return jsonify({"message": "Incorrect security answer"}), 401
+
+    except Exception as e:
+        print(f"Error during password reset: {e}")
+        return jsonify({"message": "An error occurred during password reset", "error": str(e)}), 500
+    
 
 @app.route('/get_database_data', methods=['GET'])
 def get_database_data():
