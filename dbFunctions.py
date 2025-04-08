@@ -14,7 +14,7 @@ def add_to_table(db_location, table_name, column_names, new_values):
     cursor = conn.cursor()
     columns = ", ".join(column_names)
     placeholders = ", ".join(["?"] * len(new_values))
-    query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+    query = f"INSERT OR REPLACE INTO {table_name} ({columns}) VALUES ({placeholders})"
     cursor.execute(query, new_values)
     conn.commit()
     conn.close()

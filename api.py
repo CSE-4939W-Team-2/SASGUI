@@ -95,14 +95,15 @@ def save_to_database():
     """Saves prediction or curve data to the database."""
     try:
         data = request.json
-        if 'name' in data:
-            dbFunctions.add_to_scans(file_name = data.get('name'), file_data = data.get('data'), userId = data.get('userId'))
+        if "name" in data:
+            dbFunctions.add_to_scans(file_name = data.get("name"), file_data = data.get("data"), userId = data.get("userId"))
+            return jsonify({"message": "Data saved successfully"})
         else:
-            dbFunctions.add_to_users(username = data.get('username'), password = data.get('password'), email = data.get('email'))
+            dbFunctions.add_to_users(username = data.get("username"), password = data.get("password"), email = data.get("email"))
+            return jsonify({"message": "Data saved successfully"})
     except Exception as e:
         print(f"Error saving to database: {e}")
         return jsonify({"message": "Failed to save data", "error": str(e)}), 500
-    return jsonify({"message": "Data saved successfully"})
 
 @app.route('/login', methods=['POST'])
 def login():
