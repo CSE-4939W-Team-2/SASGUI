@@ -35,7 +35,50 @@ def upload_file():
         os.remove(file_path)
         return jsonify(result)
     return jsonify({'message': 'Fatal error in ML model'}), 400
-    
+
+@app.route('/get_user_scans', methods=['GET'])
+def get_user_scans_route():
+    """Retrieve all scan names for a specific user by userId."""
+    try:
+        userId = request.args.get('userId')  # Get userId from query parameter
+        
+        if not userId:
+            return jsonify({"message": "userId parameter is required"}), 400
+        
+        # Assuming dbFunctions.get_user_scans(userId) returns a list of scans
+        scans = dbFunctions.get_user_scans(userId)
+        
+        if not scans:
+            return jsonify({"message": "No scans found for the given userId"}), 404
+        
+        # Extract just the scan names (assuming 'name' is the field in the scan data)
+        scan_names = [scan['name'] for scan in scans]
+        
+        return jsonify({"message": "Scans retrieved successfully", "scans": scan_names}), 200
+    except Exception as e:
+        print(f"Error retrieving user scans: {e}")
+        return jsonify({"message": "Error retrieving user scans", "error": str(e)}), 500
+
+@app.route('/get_scan_data', methods=['GET'])
+def get_scan_data_route():
+    """Retrieve scan data for a specific scan name and userId."""
+    try:
+        userId = request.args.get('userId')  # Get userId from query parameter
+        scan_name = request.args.get('name')  # Get scan name from query parameter
+        
+        if not userId or not scan_name:
+            return jsonify({"message": "Both userId and name parameters are required"}), 400
+        
+        # Assuming dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name) returns the scan data
+        scan_data = dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name)
+        
+        if not scan_data:
+            return jsonify({"message": "No data found for the given scan name and userId"}), 404
+        
+        return jsonify({"message": "Scan data retrieved successfully", "data": scan_data}), 200
+    except Exception as e:
+        print(f"Error retrieving scan data: {e}")
+        return jsonify({"message": "Error retrieving scan data", "error": str(e)}), 500
 
 @app.route("/shape", methods=['POST','GET'])
 def chd():
@@ -44,6 +87,45 @@ def chd():
             shape = json.get('shape')
             return startup.main(shape) #returns dimensions for morphology
     return {'name': 5}
+
+@app.route('/get_all_files', methods=['GET'])
+def get_all_files():
+    """Returns the names of all files in the upload folder."""
+    try:
+        # List all files in the upload folder
+        file_names = os.listdir(UPLOAD_FOLDER)
+        
+        # Filter out directories, keep only files
+        file_names = [f for f in file_names if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+        
+        return jsonify({"message": "Files retrieved successfully", "files": file_names}), 200
+    except Exception as e:
+        return jsonify({"message": "Error retrieving files", "error": str(e)}), 500
+    
+@app.route('/delete_file', methods=['DELETE'])
+def delete_file():
+    """Deletes a specified file from the upload folder."""
+    try:
+        # Get the filename from the request data
+        data = request.get_json()
+        file_name = data.get('file_name')
+        
+        if not file_name:
+            return jsonify({"message": "No file name provided"}), 400
+
+        # Construct the full file path
+        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+
+        # Check if file exists
+        if not os.path.exists(file_path):
+            return jsonify({"message": "File not found"}), 404
+        
+        # Remove the file
+        os.remove(file_path)
+        
+        return jsonify({"message": f"File {file_name} deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": "Error deleting file", "error": str(e)}), 500
 
 
 # Param Updates, dont think we use this
@@ -169,12 +251,6 @@ def reset_password_with_security_question():
     except Exception as e:
         print(f"Error during password reset: {e}")
         return jsonify({"message": "An error occurred during password reset", "error": str(e)}), 500
-    
-    
-    
-        
-    
-    
     
 
 @app.route('/get_database_data', methods=['GET'])

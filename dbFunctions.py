@@ -69,9 +69,6 @@ def add_to_scans(file_name, file_data, userId = 1):
     new_values = (userId, file_name, file_data)
     add_to_table(db_location, scans_table, columns, new_values)
 
-
-
-
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
     return query_table(db_location, "scans", "userId", userId)
@@ -119,15 +116,11 @@ def get_scan_parameters(fileName):
         return json.loads(result[0][-1])  # Last column contains JSON
     return None
 
-
 """Changes the password for a specific userId."""
 def change_password_by_userId(userId, new_password):
     if not new_password:
         raise ValueError("New password cannot be empty.")
     change_entry(db_location, user_table, "password", new_password, "userId", userId)
-
-
-
 
 if __name__ == "__main__":
     print("Nothing to run here")  # Test to see if the database connection works and retrieves users
