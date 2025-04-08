@@ -40,7 +40,7 @@ def upload_file():
 def get_user_scans_route():
     """Retrieve all scan names for a specific user by userId."""
     try:
-        userId = request.args.get('userId')  # Get userId from query parameter
+        userId = int(request.args.get('userId'))  # Get userId from query parameter
         
         if not userId:
             return jsonify({"message": "userId parameter is required"}), 400
@@ -52,7 +52,7 @@ def get_user_scans_route():
             return jsonify({"message": "No scans found for the given userId"}), 404
         
         # Extract just the scan names (assuming 'name' is the field in the scan data)
-        scan_names = [scan['name'] for scan in scans]
+        scan_names = [scan[0] for scan in scans]
         
         return jsonify({"message": "Scans retrieved successfully", "scans": scan_names}), 200
     except Exception as e:

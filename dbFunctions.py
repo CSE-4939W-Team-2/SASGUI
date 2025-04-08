@@ -71,7 +71,16 @@ def add_to_scans(file_name, file_data, userId = 1):
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
-    return query_table(db_location, "scans", "userId", userId)
+    conn = sqlite3.connect(db_location)
+    cursor = conn.cursor()
+    if userId:
+        query = f"SELECT FILENAME FROM SCANS WHERE USERID = ?"
+        cursor.execute(query, (userId,))
+        results = cursor.fetchall()
+    else:
+        results = []
+    conn.close()
+    return results
 
 """Retrieves user info for a specific userId."""
 def get_user_info(userId):
