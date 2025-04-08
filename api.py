@@ -177,6 +177,7 @@ def save_to_database():
     """Saves prediction or curve data to the database."""
     try:
         data = request.json
+        print(data)
         if "name" in data:
             dbFunctions.add_to_scans(file_name = data.get("name"), file_data = data.get("data"), userId = data.get("userId"))
             return jsonify({"message": "Data saved successfully"})
