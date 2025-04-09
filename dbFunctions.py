@@ -3,6 +3,7 @@ import json
 import time
 
 DB_LOCATION = 'database/SDPDatabase.sqlite'
+DB_LOCATION = 'database/SDPDatabase.sqlite'
 USER_TABLE = 'users'
 #users table column names in order: userId, username, password, email, securityQuestion, securityAnswer
 SCANS_TABLE = 'scans'

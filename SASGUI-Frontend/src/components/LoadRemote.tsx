@@ -92,9 +92,8 @@ export default function LoadRemote() {
         setCurve(curveData);
         console.log(newFile);
     }
-    const handleLoading = (saveString: string) => {
+    const handleLoading = (parsedData:saveLoad) => {
         try {
-            const parsedData:saveLoad = JSON.parse(saveString);
             handleSave(parsedData.curveData);
             setFileName(parsedData.fileName);
             setMorphology(parsedData.morphology);
@@ -155,7 +154,7 @@ export default function LoadRemote() {
     };
     const handleLoad = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        fetch(`http://localhost:5000/get_user_scans?userId=${123123123}`, {//Make the request
+        fetch(`http://localhost:5000/get_user_scans?userId=${1}`, {//Make the request
             method: 'GET',
             mode:'cors',//For CORSs
             headers: {
@@ -179,7 +178,7 @@ export default function LoadRemote() {
     const handleLoadScanButton = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
 
-        fetch(`http://localhost:5000/get_scan_data?userId=${123123123}&name=${selectedSave}`, {//Make the request
+        fetch(`http://localhost:5000/get_scan_data?userId=${1}&name=${selectedSave}`, {//Make the request
             method: 'GET',
             mode:'cors',//For CORSs
             headers: {
@@ -187,7 +186,9 @@ export default function LoadRemote() {
             }
           }).then(response => response.json()).then(data=>{
             console.log("Success: ", data.message);
-            console.log(data.data);
+            console.log(data.data.fileData);
+            handleLoading(data.data.fileData);
+            closeModal()
         }
           )
           .catch(error => {
@@ -210,7 +211,7 @@ export default function LoadRemote() {
                     <select name="saves" style={{height:"50px", backgroundColor:"#E1B6B0", borderRadius:"5px"}} onChange={handleSelectSave}
                                 value={selectedSave}>
                                     <option value="noSaves" disabled hidden>Select a Save</option>
-                                    {saveNames.map((save:string, i)=>{
+                                    {saveNames?.map((save:string, i)=>{
                                         //Maps the values in morphologyValues from morphologyTemplate
                                         return(
                                             <option key={i} value={save}>{save}</option>
