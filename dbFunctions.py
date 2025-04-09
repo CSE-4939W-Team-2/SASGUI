@@ -122,5 +122,34 @@ def change_password_by_userId(userId, new_password):
         raise ValueError("New password cannot be empty.")
     change_entry(db_location, user_table, "password", new_password, "userId", userId)
 
+# In dbFunctions.py
+
+def get_scan_data_by_name_and_user_id(userId, scan_name):
+    """Retrieve scan data based on userId and scan name."""
+    try:
+        conn = sqlite3.connect(DB_LOCATION)
+        cursor = conn.cursor()
+
+        # Query for the specific scan for the given userId and fileName (scan_name)
+        query = f"SELECT * FROM {SCANS_TABLE} WHERE userId = ? AND fileName = ?"
+        cursor.execute(query, (userId, scan_name))
+
+        result = cursor.fetchall()
+
+        conn.close()
+
+        # If there's a result, return it. Otherwise, return None
+        if result:
+            return {
+                "userId": result[0][0],  # Assuming the first column is userId
+                "fileName": result[0][1],  # Assuming the second column is fileName
+                "fileData": json.loads(result[0][2])  # Assuming the third column is fileData (JSON)
+            }
+        else:
+            return None
+    except Exception as e:
+        print(f"Error retrieving scan data by name and userId: {e}")
+        return None
+
 if __name__ == "__main__":
     print("Nothing to run here")  # Test to see if the database connection works and retrieves users
