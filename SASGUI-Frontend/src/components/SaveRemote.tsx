@@ -74,7 +74,7 @@ export default function SaveRemote() {
                 mode:'cors',//For CORSs
                 body: JSON.stringify({
                     data:JSON.stringify(jsonState),
-                    userId: 123123123,
+                    userId: 1,
                     name: name
                 }),
                 headers: {
@@ -85,6 +85,9 @@ export default function SaveRemote() {
               .then(response => response.json())
               .then(data => {
                 console.log('Success:', data);
+                if(data.error){
+                    alert(`Error: ${data.error}`)
+                }
               })
               .catch(error => {
                 console.error('Error:', error);

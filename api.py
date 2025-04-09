@@ -36,50 +36,6 @@ def upload_file():
         return jsonify(result)
     return jsonify({'message': 'Fatal error in ML model'}), 400
 
-@app.route('/get_user_scans', methods=['GET'])
-def get_user_scans_route():
-    """Retrieve all scan names for a specific user by userId."""
-    try:
-        userId = int(request.args.get('userId'))  # Get userId from query parameter
-        
-        if not userId:
-            return jsonify({"message": "userId parameter is required"}), 400
-        
-        # Assuming dbFunctions.get_user_scans(userId) returns a list of scans
-        scans = dbFunctions.get_user_scans(userId)
-        
-        if not scans:
-            return jsonify({"message": "No scans found for the given userId"}), 404
-        
-        # Extract just the scan names (assuming 'name' is the field in the scan data)
-        scan_names = [scan[0] for scan in scans]
-        
-        return jsonify({"message": "Scans retrieved successfully", "scans": scan_names}), 200
-    except Exception as e:
-        print(f"Error retrieving user scans: {e}")
-        return jsonify({"message": "Error retrieving user scans", "error": str(e)}), 500
-
-@app.route('/get_scan_data', methods=['GET'])
-def get_scan_data_route():
-    """Retrieve scan data for a specific scan name and userId."""
-    try:
-        userId = request.args.get('userId')  # Get userId from query parameter
-        scan_name = request.args.get('name')  # Get scan name from query parameter
-        
-        if not userId or not scan_name:
-            return jsonify({"message": "Both userId and name parameters are required"}), 400
-        
-        # Assuming dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name) returns the scan data
-        scan_data = dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name)
-        
-        if not scan_data:
-            return jsonify({"message": "No data found for the given scan name and userId"}), 404
-        
-        return jsonify({"message": "Scan data retrieved successfully", "data": scan_data}), 200
-    except Exception as e:
-        print(f"Error retrieving scan data: {e}")
-        return jsonify({"message": "Error retrieving scan data", "error": str(e)}), 500
-
 @app.route("/shape", methods=['POST','GET'])
 def chd():
     if request.method == 'POST':
@@ -177,14 +133,16 @@ def save_to_database():
     """Saves prediction or curve data to the database."""
     try:
         data = request.json
-        if 'name' in data:
-            dbFunctions.add_to_scans(file_name = data.get('name'), file_data = data.get('data'), userId = data.get('userId'))
+        print(data)
+        if "name" in data:
+            dbFunctions.add_to_scans(file_name = data.get("name"), file_data = data.get("data"), userId = data.get("userId"))
+            return jsonify({"message": "Data saved successfully"})
         else:
-            dbFunctions.add_to_users(username = data.get('username'), password = data.get('password'), email = data.get('email'))
+            dbFunctions.add_to_users(username = data.get("username"), password = data.get("password"), email = data.get("email"))
+            return jsonify({"message": "Data saved successfully"})
     except Exception as e:
         print(f"Error saving to database: {e}")
         return jsonify({"message": "Failed to save data", "error": str(e)}), 500
-    return jsonify({"message": "Data saved successfully"})
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -261,6 +219,49 @@ def get_database_data():
     
     return jsonify({"message": "Data retrieved", "data": stored_data})
 
+@app.route('/get_user_scans', methods=['GET'])
+def get_user_scans_route():
+    """Retrieve all scan names for a specific user by userId."""
+    try:
+        userId = request.args.get('userId')  # Get userId from query parameter
+        
+        if not userId:
+            return jsonify({"message": "userId parameter is required"}), 400
+        
+        # Assuming dbFunctions.get_user_scans(userId) returns a list of scans
+        scans = dbFunctions.get_user_scans(userId)
+        
+        if not scans:
+            return jsonify({"message": "No scans found for the given userId"}), 404
+        
+        # Extract just the scan names (assuming 'name' is the field in the scan data)
+        scan_names = [scan['name'] for scan in scans]
+        
+        return jsonify({"message": "Scans retrieved successfully", "scans": scan_names}), 200
+    except Exception as e:
+        print(f"Error retrieving user scans: {e}")
+        return jsonify({"message": "Error retrieving user scans", "error": str(e)}), 500
+
+@app.route('/get_scan_data', methods=['GET'])
+def get_scan_data_route():
+    """Retrieve scan data for a specific scan name and userId."""
+    try:
+        userId = request.args.get('userId')  # Get userId from query parameter
+        scan_name = request.args.get('name')  # Get scan name from query parameter
+        
+        if not userId or not scan_name:
+            return jsonify({"message": "Both userId and name parameters are required"}), 400
+        
+        # Call the dbFunctions.get_scan_data_by_name_and_user_id function to fetch scan data
+        scan_data = dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name) 
+        
+        if not scan_data:
+            return jsonify({"message": "No data found for the given scan name and userId"}), 404
+        
+        return jsonify({"message": "Scan data retrieved successfully", "data": scan_data}), 200
+    except Exception as e:
+        print(f"Error retrieving scan data: {e}")
+        return jsonify({"message": "Error retrieving scan data", "error": str(e)}), 500
 
 # Output and Visualization
 @app.route('/generate_graph', methods=['POST'])
