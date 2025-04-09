@@ -162,7 +162,7 @@ export default function SaveRemote() {
                     <select name="saves" style={{height:"50px", backgroundColor:"#E1B6B0", borderRadius:"5px"}} onChange={handleSelectSave}
                                 value={selectedSave}>
                                     <option value="noSaves" disabled hidden>Select a Save</option>
-                                    {saveNames.map((save:string, i)=>{
+                                    {saveNames?.map((save:string, i)=>{
                                         //Maps the values in morphologyValues from morphologyTemplate
                                         return(
                                             <option key={i} value={save}>{save}</option>
