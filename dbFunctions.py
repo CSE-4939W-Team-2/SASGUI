@@ -2,10 +2,10 @@ import sqlite3
 import json
 import time
 
-db_location = 'database\SDPDatabase.sqlite'
-user_table = 'users'
+DB_LOCATION = 'database\SDPDatabase.sqlite'
+USER_TABLE = 'users'
 #users table column names in order: userId, username, password, email, securityQuestion, securityAnswer
-scans_table = 'scans'
+SCANS_TABLE = 'scans'
 #scans table column names in order: userId, fileName, fileData
 
 'Adds row to given table'
@@ -14,7 +14,7 @@ def add_to_table(db_location, table_name, column_names, new_values):
     cursor = conn.cursor()
     columns = ", ".join(column_names)
     placeholders = ", ".join(["?"] * len(new_values))
-    query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+    query = f"INSERT OR REPLACE INTO {table_name} ({columns}) VALUES ({placeholders})"
     cursor.execute(query, new_values)
     conn.commit()
     conn.close()
@@ -60,22 +60,22 @@ def change_entry(db_location, table_name, column_name, new_value, condition_colu
 def add_to_users(username, password, email, securityQuestion = '', securityAnswer = ''): # Securely speaking this should be a hashed password, but this is basically set up to accept any string.
     columns = ["username", "password", "email", 'securityQuestion', 'securityAnswer']
     values = (username, password, email, securityQuestion, securityAnswer)
-    add_to_table(db_location, user_table, columns, values)
+    add_to_table(DB_LOCATION, USER_TABLE, columns, values)
     
     
 'Adds a scan along with parameters to the scans table'
 def add_to_scans(file_name, file_data, userId = 1):
     columns = ["userId", "fileName", "fileData"]
     new_values = (userId, file_name, file_data)
-    add_to_table(db_location, scans_table, columns, new_values)
+    add_to_table(DB_LOCATION, USER_TABLE, columns, new_values)
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
-    return query_table(db_location, "scans", "userId", userId)
+    return query_table(DB_LOCATION, "scans", "userId", userId)
 
 """Retrieves user info for a specific userId."""
 def get_user_info(userId):
-    result = query_table(db_location, user_table, "userId", userId)
+    result = query_table(DB_LOCATION, USER_TABLE, "userId", userId)
     if result:
         return {
             "userId": result[0][0], #I'm aware this is redundant
@@ -89,7 +89,7 @@ def get_user_info(userId):
 
 """Retrieves the user info for a specific username."""
 def get_id_by_username(username):
-    result = query_table(db_location, user_table, "username", username)
+    result = query_table(DB_LOCATION, USER_TABLE, "username", username)
     if result:
         return {
             "userId": result[0][0]
@@ -98,7 +98,7 @@ def get_id_by_username(username):
 
 """Retrieves the user info for a specific username."""
 def get_id_by_email(email):
-    result = query_table(db_location, user_table, "email", email)
+    result = query_table(DB_LOCATION, USER_TABLE, "email", email)
     if result:
         return {
             "userId": result[0][0]
@@ -107,11 +107,11 @@ def get_id_by_email(email):
 
 'Retrieves all scans that match the curve_type'
 def get_scans_by_curve(curve_type):
-    return query_table(db_location, "scans", "CurveType", curve_type) #This function will not work now that curve type is held within the large string(of a dictionary) in the fileData column
+    return query_table(DB_LOCATION, "scans", "CurveType", curve_type) #This function will not work now that curve type is held within the large string(of a dictionary) in the fileData column
 
 'Retrieves the scan parameters and converts into a dictionary'
 def get_scan_parameters(fileName):
-    result = query_table(db_location, "scans", "fileName", fileName)
+    result = query_table(DB_LOCATION, "scans", "fileName", fileName)
     if result:
         return json.loads(result[0][-1])  # Last column contains JSON
     return None
@@ -120,7 +120,7 @@ def get_scan_parameters(fileName):
 def change_password_by_userId(userId, new_password):
     if not new_password:
         raise ValueError("New password cannot be empty.")
-    change_entry(db_location, user_table, "password", new_password, "userId", userId)
+    change_entry(DB_LOCATION, USER_TABLE, "password", new_password, "userId", userId)
 
 # In dbFunctions.py
 
