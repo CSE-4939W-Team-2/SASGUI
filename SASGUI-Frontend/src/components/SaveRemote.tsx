@@ -85,6 +85,9 @@ export default function SaveRemote() {
               .then(response => response.json())
               .then(data => {
                 console.log('Success:', data);
+                if(data.error){
+                    alert(`Error: ${data.error}`)
+                }
               })
               .catch(error => {
                 console.error('Error:', error);
