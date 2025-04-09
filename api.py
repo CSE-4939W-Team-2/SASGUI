@@ -138,8 +138,12 @@ def save_to_database():
             dbFunctions.add_to_scans(file_name = data.get("name"), file_data = data.get("data"), userId = data.get("userId"))
             return jsonify({"message": "Data saved successfully"})
         else:
-            dbFunctions.add_to_users(username = data.get("username"), password = data.get("password"), email = data.get("email"))
-            return jsonify({"message": "Data saved successfully"})
+            result = dbFunctions.add_to_users(username = data.get("username"), password = data.get("password"), email = data.get("email"), securityAnswer = data.get("securityAnswer"), securityQuestion = data.get("securityQuestion"))
+            print(result)
+            if result["success"]:
+                return jsonify({"message": "Data saved successfully"})
+            else:
+                return jsonify(result)
     except Exception as e:
         print(f"Error saving to database: {e}")
         return jsonify({"message": "Failed to save data", "error": str(e)}), 500

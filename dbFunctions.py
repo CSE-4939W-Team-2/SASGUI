@@ -2,7 +2,7 @@ import sqlite3
 import json
 import time
 
-DB_LOCATION = 'database\SDPDatabase.sqlite'
+DB_LOCATION = 'database/SDPDatabase.sqlite'
 USER_TABLE = 'users'
 #users table column names in order: userId, username, password, email, securityQuestion, securityAnswer
 SCANS_TABLE = 'scans'
@@ -10,6 +10,22 @@ SCANS_TABLE = 'scans'
 
 'Adds row to given table'
 def add_to_table(db_location, table_name, column_names, new_values):
+    try:
+        conn = sqlite3.connect(db_location)
+        cursor = conn.cursor()
+        columns = ", ".join(column_names)
+        placeholders = ", ".join(["?"] * len(new_values))
+        query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+        cursor.execute(query, new_values)
+        conn.commit()
+        conn.close()
+    except sqlite3.IntegrityError as e:
+        return {"success": False, "message": "Username already taken", "error": f"Integrity error: {str(e)}"}
+    finally:
+        conn.close()
+    return {"success": True, "message": "Row added successfully"}
+
+def add_or_replace_to_table(db_location, table_name, column_names, new_values):
     conn = sqlite3.connect(db_location)
     cursor = conn.cursor()
     columns = ", ".join(column_names)
@@ -57,17 +73,17 @@ def change_entry(db_location, table_name, column_name, new_value, condition_colu
 
 
 'Adds a user to the users table'
-def add_to_users(username, password, email, securityQuestion = '', securityAnswer = ''): # Securely speaking this should be a hashed password, but this is basically set up to accept any string.
-    columns = ["username", "password", "email", 'securityQuestion', 'securityAnswer']
+def add_to_users(username, password, email, securityQuestion = "", securityAnswer = ""): # Securely speaking this should be a hashed password, but this is basically set up to accept any string.
+    columns = ["username", "password", "email", "securityQuestion", "securityAnswer"]
     values = (username, password, email, securityQuestion, securityAnswer)
-    add_to_table(DB_LOCATION, USER_TABLE, columns, values)
+    return add_to_table(DB_LOCATION, USER_TABLE, columns, values)
     
     
 'Adds a scan along with parameters to the scans table'
 def add_to_scans(file_name, file_data, userId = 1):
     columns = ["userId", "fileName", "fileData"]
     new_values = (userId, file_name, file_data)
-    add_to_table(DB_LOCATION, USER_TABLE, columns, new_values)
+    add_or_replace_to_table(DB_LOCATION, SCANS_TABLE, columns, new_values)
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
@@ -153,3 +169,4 @@ def get_scan_data_by_name_and_user_id(userId, scan_name):
 
 if __name__ == "__main__":
     print("Nothing to run here")  # Test to see if the database connection works and retrieves users
+    print(get_user_scans(1))  # This should print the contents of the users table
