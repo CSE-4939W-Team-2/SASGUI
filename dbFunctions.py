@@ -67,7 +67,7 @@ def add_to_users(username, password, email, securityQuestion = '', securityAnswe
 def add_to_scans(file_name, file_data, userId = 1):
     columns = ["userId", "fileName", "fileData"]
     new_values = (userId, file_name, file_data)
-    add_to_table(DB_LOCATION, USER_TABLE, columns, new_values)
+    add_to_table(DB_LOCATION, SCANS_TABLE, columns, new_values)
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):

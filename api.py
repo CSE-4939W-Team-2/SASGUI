@@ -235,7 +235,7 @@ def get_user_scans_route():
             return jsonify({"message": "No scans found for the given userId"}), 404
         
         # Extract just the scan names (assuming 'name' is the field in the scan data)
-        scan_names = [scan['name'] for scan in scans]
+        scan_names = [scan[1] for scan in scans]
         
         return jsonify({"message": "Scans retrieved successfully", "scans": scan_names}), 200
     except Exception as e:
