@@ -69,8 +69,8 @@ def get_scan_data_route():
         if not userId or not scan_name:
             return jsonify({"message": "Both userId and name parameters are required"}), 400
         
-        # Assuming dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name) returns the scan data
-        scan_data = dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name)
+        # Call the dbFunctions.get_scan_data_by_name_and_user_id function to fetch scan data
+        scan_data = dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name) 
         
         if not scan_data:
             return jsonify({"message": "No data found for the given scan name and userId"}), 404
