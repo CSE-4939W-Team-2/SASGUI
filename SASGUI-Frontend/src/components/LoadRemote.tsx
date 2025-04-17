@@ -154,7 +154,7 @@ export default function LoadRemote() {
     };
     const handleLoad = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        fetch(`http://localhost:5000/get_user_scans?userId=${1}`, {//Make the request
+        fetch(`http://http://sasgui.cse.uconn.edu:5000/get_user_scans?userId=${1}`, {//Make the request
             method: 'GET',
             mode:'cors',//For CORSs
             headers: {
@@ -178,7 +178,7 @@ export default function LoadRemote() {
     const handleLoadScanButton = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
 
-        fetch(`http://localhost:5000/get_scan_data?userId=${1}&name=${selectedSave}`, {//Make the request
+        fetch(`http://http://sasgui.cse.uconn.edu:5000/get_scan_data?userId=${1}&name=${selectedSave}`, {//Make the request
             method: 'GET',
             mode:'cors',//For CORSs
             headers: {

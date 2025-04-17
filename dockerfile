@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM python:3.9
 WORKDIR /python-docker
-RUN pip3 install flask
+RUN pip3 install flask==2.2.5
 RUN pip3 install flask-cors
 RUN pip3 install sasmodels
 RUN pip3 install scikit-learn

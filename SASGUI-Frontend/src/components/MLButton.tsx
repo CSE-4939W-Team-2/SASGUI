@@ -73,7 +73,7 @@ export default function MLButton() {
             var newFile = new File([jsonToCSV(csvData)], timeStamp + ".csv", {type:'application/vnd.ms-excel'})
             const renamed = new File([newFile], Date.now().toString() + ".csv", {type: "application/vnd.ms-excel"});
             formData.append('file', renamed);
-            fetch('http://localhost:5000/upload', {//Make the request
+            fetch('http://http://sasgui.cse.uconn.edu:5000/upload', {//Make the request
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: formData,
