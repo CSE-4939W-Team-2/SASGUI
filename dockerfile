@@ -7,6 +7,7 @@ RUN pip3 install sasmodels
 RUN pip3 install scikit-learn
 RUN pip3 install pandas
 RUN pip3 install matplotlib
+RUN pip3 install structlog
 COPY /database /python-docker/database
 COPY /full_model /python-docker/full_model
 COPY /api.py /python-docker

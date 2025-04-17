@@ -9,6 +9,8 @@ import numpy as np
 import startup
 import dbFunctions
 
+
+
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
 # TODO: database connection
@@ -36,74 +38,74 @@ def upload_file():
         return jsonify(result)
     return jsonify({'message': 'Fatal error in ML model'}), 400
 
-@app.route("/shape", methods=['POST','GET'])
-def chd():
-    if request.method == 'POST':
-            json  = request.get_json()
-            shape = json.get('shape')
-            return startup.main(shape) #returns dimensions for morphology
-    return {'name': 5}
+# @app.route("/shape", methods=['POST','GET'])
+# def chd():
+#     if request.method == 'POST':
+#             json  = request.get_json()
+#             shape = json.get('shape')
+#             return startup.main(shape) #returns dimensions for morphology
+#     return {'name': 5}
 
-@app.route('/get_all_files', methods=['GET'])
-def get_all_files():
-    """Returns the names of all files in the upload folder."""
-    try:
-        # List all files in the upload folder
-        file_names = os.listdir(UPLOAD_FOLDER)
+# @app.route('/get_all_files', methods=['GET'])
+# def get_all_files():
+#     """Returns the names of all files in the upload folder."""
+#     try:
+#         # List all files in the upload folder
+#         file_names = os.listdir(UPLOAD_FOLDER)
         
-        # Filter out directories, keep only files
-        file_names = [f for f in file_names if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+#         # Filter out directories, keep only files
+#         file_names = [f for f in file_names if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
         
-        return jsonify({"message": "Files retrieved successfully", "files": file_names}), 200
-    except Exception as e:
-        return jsonify({"message": "Error retrieving files", "error": str(e)}), 500
+#         return jsonify({"message": "Files retrieved successfully", "files": file_names}), 200
+#     except Exception as e:
+#         return jsonify({"message": "Error retrieving files", "error": str(e)}), 500
     
-@app.route('/delete_file', methods=['DELETE'])
-def delete_file():
-    """Deletes a specified file from the upload folder."""
-    try:
-        # Get the filename from the request data
-        data = request.get_json()
-        file_name = data.get('file_name')
+# @app.route('/delete_file', methods=['DELETE'])
+# def delete_file():
+#     """Deletes a specified file from the upload folder."""
+#     try:
+#         # Get the filename from the request data
+#         data = request.get_json()
+#         file_name = data.get('file_name')
         
-        if not file_name:
-            return jsonify({"message": "No file name provided"}), 400
+#         if not file_name:
+#             return jsonify({"message": "No file name provided"}), 400
 
-        # Construct the full file path
-        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+#         # Construct the full file path
+#         file_path = os.path.join(UPLOAD_FOLDER, file_name)
 
-        # Check if file exists
-        if not os.path.exists(file_path):
-            return jsonify({"message": "File not found"}), 404
+#         # Check if file exists
+#         if not os.path.exists(file_path):
+#             return jsonify({"message": "File not found"}), 404
         
-        # Remove the file
-        os.remove(file_path)
+#         # Remove the file
+#         os.remove(file_path)
         
-        return jsonify({"message": f"File {file_name} deleted successfully"}), 200
-    except Exception as e:
-        return jsonify({"message": "Error deleting file", "error": str(e)}), 500
+#         return jsonify({"message": f"File {file_name} deleted successfully"}), 200
+#     except Exception as e:
+#         return jsonify({"message": "Error deleting file", "error": str(e)}), 500
 
 
-# Param Updates, dont think we use this
-@app.route('/update_params', methods=['POST'])
-def update_params():
-    """Updates parameters for the prediction model."""
-    params = request.json
+# # Param Updates, dont think we use this
+# @app.route('/update_params', methods=['POST'])
+# def update_params():
+#     """Updates parameters for the prediction model."""
+#     params = request.json
     
-    # TODO: Validate and update parameters in the system
-    return jsonify({"message": "Parameters updated", "params": params})
+#     # TODO: Validate and update parameters in the system
+#     return jsonify({"message": "Parameters updated", "params": params})
 
 
-# ML?
-@app.route('/predict', methods=['POST'])
-def predict():
-    """Calls the ML classifier to predict shape."""
-    input_data = request.json  # Expecting input parameters
+# # ML?
+# @app.route('/predict', methods=['POST'])
+# def predict():
+#     """Calls the ML classifier to predict shape."""
+#     input_data = request.json  # Expecting input parameters
     
-    # TODO: Call the trained ML model for prediction
-    prediction = {"shape": "predicted_shape", "confidence": 0.95}  # test response
+#     # TODO: Call the trained ML model for prediction
+#     prediction = {"shape": "predicted_shape", "confidence": 0.95}  # test response
     
-    return jsonify({"message": "Prediction successful", "prediction": prediction})
+#     return jsonify({"message": "Prediction successful", "prediction": prediction})
 
 
 # Curve SImulations
@@ -116,16 +118,6 @@ def simulate_curve():
     simulated_curve = {"curve_data": [0, 1, 2, 3]}  # test response
     
     return jsonify({"message": "Curve simulated", "curve": simulated_curve})
-
-
-@app.route('/get_3d_model', methods=['GET'])
-def get_3d_model():
-    """Fetches a 3D model."""
-    
-    # TODO: Fetch or generate a 3D model
-    model_data = {"model": "3D_model_placeholder"}  # test response
-    
-    return jsonify({"message": "3D Model generated", "model": model_data})
 
 
 @app.route('/save_to_database', methods=['POST'])
@@ -266,29 +258,6 @@ def get_scan_data_route():
     except Exception as e:
         print(f"Error retrieving scan data: {e}")
         return jsonify({"message": "Error retrieving scan data", "error": str(e)}), 500
-
-# Output and Visualization
-@app.route('/generate_graph', methods=['POST'])
-def generate_graph():
-    """Generates a graph based on input data."""
-    input_data = request.json
-    
-    # TODO: Implement graph generation logic
-    graph_data = {"graph": "graph_placeholder"}  # test response
-    
-    return jsonify({"message": "Graph generated", "graph": graph_data})
-
-
-@app.route('/output_3d_model', methods=['GET'])
-def output_3d_model():
-    """Outputs the 3D model for display."""
-    
-    # TODO: Retrieve and serve 3D model data
-    output_model = {"3D_model": "display_3D_model_placeholder"}  # test response
-    
-    return jsonify({"message": "3D Model displayed", "model": output_model})
-
-
 # -----
 #SASVIEW
 def process_request(json, model_name, param_mapping):
@@ -431,116 +400,7 @@ def simulate_graph():
     response = MORPHOLOGY_FUNCTIONS[morphology](data)
 
     return jsonify(response)
-# @app.route("/graphcsd", methods=['POST','GET'])
-# def chartcsd():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'length': 'h',
-#             'radius': 'radius',
-#             'background': 0.001,
-#             'scale': 1,
-#             'length_pd': 0.5,
-#             'length_pd_type': 'schulz',
-#             'length_pd_n': 40,
-#             'length_pd_nsigma': 3
-#         }
-#         return process_request(json_data, 'cylinder', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/csd", methods=['POST','GET'])
-# def csd():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'length': 'h',
-#             'radius': 'radius',
-#             'thickness': 'thickness',
-#             'sld_core': 'sldcore',
-#             'sld_shell': 'sldshell',
-#             'sld_solvent': 'sldsolvent',
-#             'background': 'background',
-#             'scale': 'scale',
-#             'length_pd': 'pd'
-#         }
-#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/graph", methods=['POST','GET'])
-# def chart():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'length': 'h',
-#             'radius': 'radius',
-#             'scale': 'scale',
-#             'sld': 'sld',
-#             'sld_solvent': 'sldsolvent',
-#             'background': 'background',
-#             'length_pd': 'pd'
-#         }
-#         return process_request(json_data, 'cylinder', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/sph", methods=['POST','GET'])
-# def spheregraph():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'radius': 'sphereRadius',
-#             'scale': 'sphereScale',
-#             'sld': 'sphereScatteringLengthDensity',
-#             'background': 'sphereBackground',
-#             'radius_pd': 'spherePolydispersity',
-#             'sld_solvent': 'sphereScatteringLengthSolvent'
-#         }
-#         return process_request(json_data, 'sphere', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/css", methods=['POST','GET'])
-# def cssgraph():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'radius': 'radius',
-#             'thickness': 'thickness',
-#             'scale': 'scale',
-#             'background': 'background',
-#             'sld_core': 'sldcore',
-#             'sld_shell': 'sldshell',
-#             'sld_solvent': 'sldsolvent',
-#             'radius_pd': 'pd'
-#         }
-#         return process_request(json_data, 'core_shell_sphere', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/csc", methods=['POST','GET'])
-# def cscgraph():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'radius': 'radius',
-#             'thickness': 'thickness',
-#             'length': 'h'
-#         }
-#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
-#     return {'name': 5}
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-"""def graphASphere(data):
-    param_mapping = {
-            'radius': 'sphereRadius',
-            'scale': 'sphereScale',
-            'sld': 'sphereScatteringLengthDensity',
-            'background': 'sphereBackground',
-            'radius_pd': 'spherePolydispersity',
-            'sld_solvent': 'sphereScatteringLengthSolvent'
-    }
-    return process_request(data, 'sphere', param_mapping)"""
 
