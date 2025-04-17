@@ -379,7 +379,7 @@ def log_performace(logger, operation, start_time, **kwargs):
 UPLOAD_FOLDER = os.path.abspath("hierarchical_SAS_analysis-main 2/data") # Directly use the existing folder path
 
 @app.route('/upload', methods=['POST'])
-@log_request
+#@log_request
 def upload_file():
     operation_start = time.time()
     logger.info("file_upload_started")
