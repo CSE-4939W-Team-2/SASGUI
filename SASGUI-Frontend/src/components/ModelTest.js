@@ -10,14 +10,14 @@ const App = () => {
 
   useEffect(() => {
     // Fetch graph image
-    axios.get('http://sasgui.cse.uconn.edu:5000/graph', { responseType: 'blob' })
+    axios.get('http://localhost:5000/graph', { responseType: 'blob' })
       .then(response => {
         const url = URL.createObjectURL(response.data);
         setGraphData(url);
       });
 
     // Fetch 3D model
-    axios.get('http://sasgui.cse.uconn.edu:5000/3d-model', { responseType: 'blob' })
+    axios.get('http://localhost:5000/3d-model', { responseType: 'blob' })
       .then(response => {
         const url = URL.createObjectURL(response.data);
         setModel(url);
