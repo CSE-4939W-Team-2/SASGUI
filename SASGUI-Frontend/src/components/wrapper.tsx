@@ -10,6 +10,7 @@ import { coreShellDiskSliders } from '../atoms/coreShellDiskTemplate';
 import { currentMorphology } from '../atoms/morphologyTemplate';
 import { useEffect } from 'react';
 import { csvCurve } from './CSVFileReader';
+import { cubeSliders } from '../atoms/cubeTemplate';
 export const curveWithCSVData = atom({
     key: 'curveWithCSVData',
     default: [] as curveWithCSVData[]
@@ -45,6 +46,10 @@ export default function Wrapper() {
     coreShellDiskSliders.map((slider:sliderObj)=>{
         coreShellDiskData[slider.atomic.key] = useRecoilValue(slider.atomic)
     })
+    const cubeData:any = {morphology:"Cube"}
+    cubeSliders.map((slider:sliderObj)=>{
+        cubeData[slider.atomic.key] = useRecoilValue(slider.atomic)
+    })
     useEffect(()=>{
         //Using a switch case, the object containing the data for the current morphology is selected
         let data = null
@@ -66,6 +71,9 @@ export default function Wrapper() {
                 break;
             case "/coreShellDisk":
                 data = coreShellDiskData
+                break;
+            case "/cube":
+                data = cubeData
                 break;
             case "/":
                 console.log("Default page");
@@ -105,7 +113,7 @@ export default function Wrapper() {
             });
         }
     //dependency list contains morphology and all of the data objects. This way, whenever a data point in any morphology or the current morphology changes, the above logic runs
-    },[morphology, sphereData, coreShellSphereData, coreShellCylinderData, cylinderData, coreShellDiskData, diskData, upCurve])
+    },[morphology, sphereData, coreShellSphereData, coreShellCylinderData, cylinderData, coreShellDiskData, diskData, cubeData, upCurve])
     return(
         <BrowserRouter>
             <Routes>
@@ -116,6 +124,7 @@ export default function Wrapper() {
             <Route path="coreShellCylinder" element={<Page title= "Core-Shell-Cylinder Morphology" sliderArray={coreShellCylinderSliders}/>}/>
             <Route path="disk" element={<Page title= "Disk Morphology" sliderArray={diskSliders}/>}/>
             <Route path="coreShellDisk" element={<Page title= "Core-Shell-Disk Morphology" sliderArray={coreShellDiskSliders}/>}/>
+            <Route path="cube" element={<Page title= "Cube Morphology" sliderArray={cubeSliders}/>}/>
             </Routes>
         </BrowserRouter>
     )

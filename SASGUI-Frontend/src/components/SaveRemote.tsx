@@ -10,6 +10,7 @@ import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { cylinderSliders } from "../atoms/cylinderTemplate";
 import Modal from 'react-modal';
 import { useState } from "react";
+import { cubeSliders } from "../atoms/cubeTemplate";
 const customStyles = {
     content: {
       top: '50%',
@@ -79,6 +80,13 @@ export default function SaveRemote() {
             value: useRecoilValue(slider.atomic)
         })
     })
+    const cubeData = cubeSliders.map((slider:sliderObj)=>{
+        return(
+        {
+            atom: slider.atomic,
+            value: useRecoilValue(slider.atomic)
+        })
+    })
     const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         fetch(`http://localhost:5000/get_user_scans?userId=${1}`, {//Make the request
@@ -115,7 +123,8 @@ export default function SaveRemote() {
                 cylinderData: cylinderData,
                 coreShellCylinderData: coreShellCylinderData,
                 diskData: diskData,
-                coreShellDiskData: coreShellDiskData            
+                coreShellDiskData: coreShellDiskData,
+                cubeData: cubeData            
             }        
             fetch('http://localhost:5000/save_to_database', {//Make the request
                 method: 'POST',

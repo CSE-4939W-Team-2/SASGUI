@@ -12,6 +12,7 @@ import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { currentMorphology, saveLoad } from "../atoms/morphologyTemplate";
 import { useNavigate } from "react-router-dom";
 import Modal from 'react-modal';
+import { cubeSliders } from "../atoms/cubeTemplate";
 const customStyles = {
     content: {
       top: '50%',
@@ -43,6 +44,13 @@ export default function LoadRemote() {
     const closeModal = () => {
         setIsOpen(false);
     }
+    const cubeSetters = cubeSliders.map((slider:sliderObj)=>{
+            return(
+            {
+                atom: slider.atomic,
+                setter: useSetRecoilState(slider.atomic)
+            })
+    });
     const sphereSetters = sphereSliders.map((slider:sliderObj)=>{
             return(
             {
@@ -98,6 +106,14 @@ export default function LoadRemote() {
             setFileName(parsedData.fileName);
             setMorphology(parsedData.morphology);
             //Grab all the data for all the sliders in all morphologies
+            parsedData.cubeData?.map((slider:{atom: RecoilState<number>, value: number}, i:number) => {
+                if(slider.atom.key === cubeSetters[i].atom.key){
+                    cubeSetters[i].setter(slider.value)
+                }
+                else{
+                    throw new Error("Ran into template mismatch, uploaded file does not match template")
+                }
+            })
             parsedData.sphereData.map((slider:{atom: RecoilState<number>, value: number}, i:number) => {
                 if(slider.atom.key === sphereSetters[i].atom.key){
                     sphereSetters[i].setter(slider.value)

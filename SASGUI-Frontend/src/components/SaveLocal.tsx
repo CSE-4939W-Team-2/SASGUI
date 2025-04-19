@@ -9,6 +9,7 @@ import { coreShellCylinderSliders } from "../atoms/coreShellCylinderTemplate";
 import { diskSliders } from "../atoms/diskTemplate";
 import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { cylinderSliders } from "../atoms/cylinderTemplate";
+import { cubeSliders } from "../atoms/cubeTemplate";
 export default function SaveLocal() {
     const fileName = useRecoilValue(csvFileName);//Get file name
     const curveData = useRecoilValue(csvCurve);//Get graph csv data
@@ -56,6 +57,13 @@ export default function SaveLocal() {
             value: useRecoilValue(slider.atomic)
         })
     })
+    const cubeData = cubeSliders.map((slider:sliderObj)=>{
+        return(
+        {
+            atom: slider.atomic,
+            value: useRecoilValue(slider.atomic)
+        })
+    })
     const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const name = prompt("Please enter a file name");
@@ -70,7 +78,8 @@ export default function SaveLocal() {
                 cylinderData: cylinderData,
                 coreShellCylinderData: coreShellCylinderData,
                 diskData: diskData,
-                coreShellDiskData: coreShellDiskData            
+                coreShellDiskData: coreShellDiskData,            
+                cubeData: cubeData            
             }
             const blob = new Blob([JSON.stringify(jsonState)], {type: "text/json"})
             saveAs(blob, name + ".json");

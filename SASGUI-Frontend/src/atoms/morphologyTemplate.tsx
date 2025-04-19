@@ -37,6 +37,10 @@ export const morphologyValues:morphologyType[] = [
     {
         value: "/coreShellDisk",
         text: "Core-Shell-Disk"
+    },
+    {
+        value: "/cube",
+        text: "Cube"
     }
 ]
 //This is the type that defines the object used to save/load locally and remotely. Each page gets a field to store its sliders.
@@ -66,6 +70,10 @@ export interface saveLoad {
         value: number;
     }[];
     coreShellDiskData: {
+        atom: RecoilState<number>;
+        value: number;
+    }[];
+    cubeData: {
         atom: RecoilState<number>;
         value: number;
     }[];

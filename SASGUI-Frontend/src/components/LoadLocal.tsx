@@ -11,6 +11,7 @@ import { diskSliders } from "../atoms/diskTemplate";
 import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { currentMorphology, saveLoad } from "../atoms/morphologyTemplate";
 import { useNavigate } from "react-router-dom";
+import { cubeSliders } from "../atoms/cubeTemplate";
 export default function LoadLocal() {
     const inputRef = useRef<HTMLInputElement>(null);//Used for file upload
     const [file, setFile] = useRecoilState(csvFile);//Setter for the csv file state
@@ -61,6 +62,13 @@ export default function LoadLocal() {
                 setter: useSetRecoilState(slider.atomic)
             })
     });
+    const cubeSetters = cubeSliders.map((slider:sliderObj)=>{
+            return(
+            {
+                atom: slider.atomic,
+                setter: useSetRecoilState(slider.atomic)
+            })
+    });
     const handleSave = (curveData:csvCurveData[]) => {
         const timeStamp = Date.now().toString()
         var newFile = new File([jsonToCSV(curveData)], timeStamp + ".csv", {type:'application/vnd.ms-excel'})
@@ -80,6 +88,14 @@ export default function LoadLocal() {
                         setFileName(parsedData.fileName);
                         setMorphology(parsedData.morphology);
                         //Grab all the data for all the sliders in all morphologies
+                        parsedData.cubeData?.map((slider:{atom: RecoilState<number>, value: number}, i:number) => {
+                            if(slider.atom.key === cubeSetters[i].atom.key){
+                                cubeSetters[i].setter(slider.value)
+                            }
+                            else{
+                                throw new Error("Ran into template mismatch, uploaded file does not match template")
+                            }
+                        })
                         parsedData.sphereData.map((slider:{atom: RecoilState<number>, value: number}, i:number) => {
                             if(slider.atom.key === sphereSetters[i].atom.key){
                                 sphereSetters[i].setter(slider.value)
