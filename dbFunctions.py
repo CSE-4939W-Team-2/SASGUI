@@ -47,7 +47,7 @@ def add_to_users(user_id):
     add_to_table(db_location, user_table, (user_id))
     
 'Adds a scan along with parameters to the scans table'
-def add_to_scans(file_name, file_data, parameter_dict, user_id = 123123123):
+def add_to_scans(file_name, file_data, parameter_dict, user_id = 1):
     # Validate the scan data before adding it
     if not validate_scan_file(file_data):
         print("Error: This is not a valid scan graph file. Scattering data is out of bounds or cannot be plugged in.")
