@@ -91,51 +91,50 @@ def update_metrics(endpoint, duration_ms, error=False, metadata=None):
 
 def log_metrics_summary(endpoint):
     """Log a summary of metrics for the endpoint"""
-    with metrics_lock:
-        metrics = endpoint_metrics[endpoint]
+    metrics = endpoint_metrics[endpoint]
 
-        if metrics["calls"] == 0:
-            return
-        
-        avg_duration = metrics["total_duration"] / metrics["calls"]
-        error_rate = metrics["errors"] / metrics["calls"] if metrics["calls"] > 0 else 0
+    if metrics["calls"] == 0:
+        return
+    
+    avg_duration = metrics["total_duration"] / metrics["calls"]
+    error_rate = metrics["errors"] / metrics["calls"] if metrics["calls"] > 0 else 0
 
-        logger.info(
-            f"{endpoint}_summary",
-            calls=metrics["calls"],
-            errors=metrics["errors"],
-            error_rate_percent=round(error_rate, 2),
-            avg_duration_ms=round(avg_duration, 2),
-            min_duration_ms=round(metrics["min_duration_ms"],2),
-            max_duration_ms=round(metrics["max_duration_ms"],2),
-        )
+    logger.info(
+        f"{endpoint}_summary",
+        calls=metrics["calls"],
+        errors=metrics["errors"],
+        error_rate_percent=round(error_rate, 2),
+        avg_duration_ms=round(avg_duration, 2),
+        min_duration_ms=round(metrics["min_duration_ms"],2),
+        max_duration_ms=round(metrics["max_duration_ms"],2),
+    )
 
-        if metrics["by_morphology"]:
-            top_morphology = sorted(
-                metrics["by_morphology"].items(),
-                key=lambda x: x[1]["calls"],
-                reverse=True
-            )[:3]
+    if metrics["by_morphology"]:
+        top_morphology = sorted(
+            metrics["by_morphology"].items(),
+            key=lambda x: x[1]["calls"],
+            reverse=True
+        )[:3]
 
-            for morphology, morph_metrics in top_morphology:
-                morph_avg_duration = morph_metrics["total_duration"] / morph_metrics["calls"] if morph_metrics["calls"] > 0 else 0
-                morph_error_rate = (morph_metrics["errors"] / morph_metrics["calls"]) * 100 if morph_metrics["calls"] > 0 else 0
+        for morphology, morph_metrics in top_morphology:
+            morph_avg_duration = morph_metrics["total_duration"] / morph_metrics["calls"] if morph_metrics["calls"] > 0 else 0
+            morph_error_rate = (morph_metrics["errors"] / morph_metrics["calls"]) * 100 if morph_metrics["calls"] > 0 else 0
 
-                logger.info(
-                    f"{endpoint}_morphology_summary",
-                    morphology=morphology,
-                    calls=morph_metrics["calls"],
-                    percentage=round((morph_metrics["calls"] / metrics["calls"]) * 100, 2),
-                    avg_duration_ms=round(morph_avg_duration, 2),
-                    error_rate_percent=round(morph_error_rate, 2),
-                )
+            logger.info(
+                f"{endpoint}_morphology_summary",
+                morphology=morphology,
+                calls=morph_metrics["calls"],
+                percentage=round((morph_metrics["calls"] / metrics["calls"]) * 100, 2),
+                avg_duration_ms=round(morph_avg_duration, 2),
+                error_rate_percent=round(morph_error_rate, 2),
+            )
 
-        metrics["calls"] = 0
-        metrics["errors"] = 0
-        metrics["total_duration"] = 0
-        metrics["min_duration_ms"] = float('inf')
-        metrics["max_duration_ms"] = float('-inf')
-        metrics["by_morphology"] = defaultdict(lambda: {"calls": 0, "errors": 0, "total_duration_ms": 0})
+    metrics["calls"] = 0
+    metrics["errors"] = 0
+    metrics["total_duration"] = 0
+    metrics["min_duration_ms"] = float('inf')
+    metrics["max_duration_ms"] = float('-inf')
+    metrics["by_morphology"] = defaultdict(lambda: {"calls": 0, "errors": 0, "total_duration": 0})
 
 
 def add_app_context(logger, function, event_dict):
