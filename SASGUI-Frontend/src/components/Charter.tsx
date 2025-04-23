@@ -173,11 +173,23 @@ export default function Charter(){
             <LineChart
               data={data}
               onMouseDown={(e: any) =>
-                setState((prev) => ({ ...prev, refHighlightAreaLeft: e.activeLabel, refAreaLeft: e.activeTooltipIndex}))
+                setState((prev) => {
+                  try{
+                    return { ...prev, refHighlightAreaLeft: e.activeLabel, refAreaLeft: e.activeTooltipIndex}}
+                  catch{
+                    console.error("Failed to grab activelabel")
+                    return prev
+                  }})
               }
               onMouseMove={(e: any) =>{
                 state.refAreaLeft!== "" &&
-                setState((prev) => ({ ...prev, refHighlightAreaRight: e.activeLabel, refAreaRight: e.activeTooltipIndex}))}
+                setState((prev) => {
+                  try{
+                    return { ...prev, refHighlightAreaRight: e.activeLabel, refAreaRight: e.activeTooltipIndex}}
+                  catch{
+                    console.error("Failed to grab activelabel")
+                    return prev
+                  }})}
               }
               onMouseUp={() => zoom()}
               margin={{bottom:10, right: 5, top: 5, left: 5}}
