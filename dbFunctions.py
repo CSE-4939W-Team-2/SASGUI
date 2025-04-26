@@ -79,12 +79,19 @@ def add_to_users(username, password, email, securityQuestion = "", securityAnswe
     values = (username, password, email, securityQuestion, securityAnswer)
     return add_to_table(USER_TABLE, columns, values, DB_LOCATION)
     
+	
+
+def add_to_scans(file_name, file_data, userId = 1): 
+    # Validate the scan data before adding it
+    #Validation here does not work the file data is a string, not numbers
+    #if not validate_scan_file(file_data):
+    #    print("Error: This is not a valid scan graph file. Scattering data is out of bounds or cannot be plugged in.")
+    #    return
     
-'Adds a scan along with parameters to the scans table'
-def add_to_scans(file_name, file_data, userId = 1):
-    columns = ["userId", "fileName", "fileData"]
     new_values = (userId, file_name, file_data)
+    columns = ["userId", "fileName", "fileData"] 
     add_or_replace_to_table( SCANS_TABLE, columns, new_values, DB_LOCATION)
+
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
@@ -167,7 +174,25 @@ def get_scan_data_by_name_and_user_id(userId, scan_name):
     except Exception as e:
         print(f"Error retrieving scan data by name and userId: {e}")
         return None
+'Validates the scan file data'
+def validate_scan_file(file_data):
+    # Example validation logic - you should replace this with your actual validation rules
+    # For this example, we'll assume file_data is a list of numbers
+    try:
+        scattering_data = json.loads(file_data)
+        min_bound = 0  # Example lower bound for scattering data
+        max_bound = 100000  # Example upper bound for scattering data
 
+        # Check if scattering data is within bounds
+        for value in scattering_data:
+            if value < min_bound or value > max_bound:
+                return False
+
+        # If everything is within bounds
+        return True
+    except (json.JSONDecodeError, TypeError):
+        # If the file_data is not a valid JSON or type mismatch
+        return False
 if __name__ == "__main__":
     print("Nothing to run here")  # Test to see if the database connection works and retrieves users
     print(get_user_scans(1))  # This should print the contents of the users table
