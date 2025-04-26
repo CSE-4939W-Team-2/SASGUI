@@ -79,12 +79,15 @@ def add_to_users(username, password, email, securityQuestion = "", securityAnswe
     values = (username, password, email, securityQuestion, securityAnswer)
     return add_to_table(DB_LOCATION, USER_TABLE, columns, values)
     
+def add_to_scans(file_name, file_data, parameter_dict, user_id = 1):
+    # Validate the scan data before adding it
+    if not validate_scan_file(file_data):
+        print("Error: This is not a valid scan graph file. Scattering data is out of bounds or cannot be plugged in.")
+        return
     
-'Adds a scan along with parameters to the scans table'
-def add_to_scans(file_name, file_data, userId = 1):
-    columns = ["userId", "fileName", "fileData"]
-    new_values = (userId, file_name, file_data)
-    add_or_replace_to_table(DB_LOCATION, SCANS_TABLE, columns, new_values)
+    parameters_json = json.dumps(parameter_dict)
+    new_values = (user_id, file_name, file_data, parameters_json)
+    add_to_table(db_location, user_table, new_values)
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
