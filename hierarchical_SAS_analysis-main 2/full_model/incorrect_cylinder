@@ -1,0 +1,12 @@
+45 TRUE radius:46.724968 length:194.318957 polydispersity:0.212158 contrast:1.044274 REGRESSED sphere radius:36.191628 polydispersity:0.587966 contrast:1.041708
+0 TRUE radius:184.518205 length:748.488188 polydispersity:0.347493 contrast:2.063943 REGRESSED cs_sphere radius:267.843208 shell:133.931001 polydispersity:0.292649 contrast:2.003467 contrast_2:0.980631
+32 TRUE radius:298.674603 length:1223.306982 polydispersity:0.286817 contrast:0.719886 REGRESSED cs_sphere radius:341.964787 shell:212.170064 polydispersity:0.276450 contrast:0.487968 contrast_2:1.175080
+2 TRUE radius:105.191074 length:437.704417 polydispersity:0.135026 contrast:2.767857 REGRESSED cs_cylinder radius:112.448620 length:330.362450 shell:51.954407 polydispersity:0.208493 contrast:2.535392 contrast_2:2.031900
+15 TRUE radius:147.973356 length:592.644510 polydispersity:0.320375 contrast:3.083316 REGRESSED cs_cylinder radius:159.453660 length:295.671284 shell:101.211871 polydispersity:0.222096 contrast:3.010169 contrast_2:2.031900
+94 TRUE radius:107.474684 length:500.920574 polydispersity:0.194809 contrast:2.893796 REGRESSED cs_cylinder radius:111.335223 length:379.832889 shell:58.738900 polydispersity:0.208796 contrast:2.735855 contrast_2:2.031900
+98 TRUE radius:142.490569 length:646.408974 polydispersity:0.336837 contrast:3.235523 REGRESSED cs_cylinder radius:157.950510 length:493.997290 shell:97.631058 polydispersity:0.230439 contrast:3.205900 contrast_2:2.031900
+208 TRUE radius:130.344568 length:850.805213 polydispersity:0.147783 contrast:1.288813 REGRESSED cs_cylinder radius:135.799694 length:758.884951 shell:70.379346 polydispersity:0.238897 contrast:1.109114 contrast_2:2.031900
+482 TRUE radius:84.969424 length:891.543498 polydispersity:0.145531 contrast:3.130947 REGRESSED cs_cylinder radius:87.412105 length:722.545914 shell:50.758354 polydispersity:0.220085 contrast:3.081015 contrast_2:2.031900
+554 TRUE radius:86.372118 length:1135.608033 polydispersity:0.317732 contrast:2.931391 REGRESSED cs_cylinder radius:90.066079 length:1096.056038 shell:49.697200 polydispersity:0.230186 contrast:2.851617 contrast_2:2.031900
+10 TRUE radius:244.395717 length:1016.762621 polydispersity:0.333051 contrast:1.343439 REGRESSED cs_disk radius:615.299259 length:425.764098 shell:151.471762 polydispersity:0.259119 contrast:1.789106 contrast_2:2.085474
+41 TRUE radius:210.196215 length:908.411084 polydispersity:0.233835 contrast:1.395333 REGRESSED cs_disk radius:601.171728 length:640.679052 shell:153.745474 polydispersity:0.255508 contrast:0.825132 contrast_2:2.085474

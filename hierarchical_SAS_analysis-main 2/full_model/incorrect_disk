@@ -1,0 +1,11 @@
+0 TRUE radius:359.556399 length:341.104163 polydispersity:0.115603 contrast:1.217658 REGRESSED sphere radius:234.688573 polydispersity:0.555364 contrast:1.252619
+12 TRUE radius:89.523856 length:83.024989 polydispersity:0.229718 contrast:0.697491 REGRESSED sphere radius:53.276075 polydispersity:0.490165 contrast:0.698510
+20 TRUE radius:330.327020 length:310.047602 polydispersity:0.273334 contrast:1.078588 REGRESSED sphere radius:190.362842 polydispersity:0.457590 contrast:1.092574
+37 TRUE radius:442.220283 length:417.830268 polydispersity:0.171382 contrast:0.734084 REGRESSED sphere radius:281.935176 polydispersity:0.386128 contrast:0.744661
+63 TRUE radius:122.958621 length:110.465196 polydispersity:0.117040 contrast:0.645260 REGRESSED sphere radius:79.690039 polydispersity:0.396532 contrast:0.649791
+16 TRUE radius:315.643608 length:310.176818 polydispersity:0.241061 contrast:1.602171 REGRESSED cs_disk radius:337.697388 length:337.830642 shell:125.431125 polydispersity:0.224694 contrast:1.365853 contrast_2:2.085474
+27 TRUE radius:418.714842 length:415.628470 polydispersity:0.269514 contrast:2.463105 REGRESSED cs_disk radius:407.032968 length:429.269523 shell:165.407961 polydispersity:0.237253 contrast:2.207071 contrast_2:2.085474
+53 TRUE radius:441.985640 length:359.329705 polydispersity:0.250162 contrast:2.776696 REGRESSED cs_disk radius:502.315014 length:367.292861 shell:157.531687 polydispersity:0.216659 contrast:2.226268 contrast_2:2.085474
+132 TRUE radius:392.921089 length:301.323540 polydispersity:0.206272 contrast:1.518859 REGRESSED cs_disk radius:411.428370 length:347.106660 shell:116.020324 polydispersity:0.216650 contrast:1.235620 contrast_2:2.085474
+148 TRUE radius:459.344841 length:359.978684 polydispersity:0.128689 contrast:3.265633 REGRESSED cs_disk radius:464.159796 length:372.394641 shell:141.668022 polydispersity:0.205271 contrast:2.773899 contrast_2:2.085474
+378 TRUE radius:413.972706 length:183.870133 polydispersity:0.213079 contrast:3.460492 REGRESSED cs_disk radius:426.897109 length:184.229156 shell:72.324556 polydispersity:0.204474 contrast:3.291882 contrast_2:2.085474
