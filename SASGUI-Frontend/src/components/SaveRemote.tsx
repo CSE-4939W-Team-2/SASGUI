@@ -10,6 +10,7 @@ import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { cylinderSliders } from "../atoms/cylinderTemplate";
 import Modal from 'react-modal';
 import { useState } from "react";
+import { backend_link } from "../App";
 const customStyles = {
     content: {
       top: '50%',
@@ -81,7 +82,7 @@ export default function SaveRemote() {
     })
     const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        fetch(`http://sasgui.cse.uconn.edu:5000/get_user_scans?userId=${1}`, {//Make the request
+        fetch(`${backend_link}/get_user_scans?userId=${1}`, {//Make the request
             method: 'GET',
             mode:'cors',//For CORSs
             headers: {
@@ -117,7 +118,7 @@ export default function SaveRemote() {
                 diskData: diskData,
                 coreShellDiskData: coreShellDiskData            
             }        
-            fetch('http://sasgui.cse.uconn.edu:5000/save_to_database', {//Make the request
+            fetch(`${backend_link}/save_to_database`, {//Make the request
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: JSON.stringify({

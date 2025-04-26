@@ -10,6 +10,7 @@ import { diskSliders } from "../atoms/diskTemplate";
 import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { useNavigate } from "react-router-dom";
 import { currentMorphology } from "../atoms/morphologyTemplate";
+import { backend_link } from "../App";
 export default function MLButton() {
     const navigate = useNavigate();
     const setMorphology = useSetRecoilState(currentMorphology);
@@ -73,7 +74,7 @@ export default function MLButton() {
             var newFile = new File([jsonToCSV(csvData)], timeStamp + ".csv", {type:'application/vnd.ms-excel'})
             const renamed = new File([newFile], Date.now().toString() + ".csv", {type: "application/vnd.ms-excel"});
             formData.append('file', renamed);
-            fetch('http://sasgui.cse.uconn.edu:5000/upload', {//Make the request
+            fetch(`${backend_link}/upload`, {//Make the request
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: formData,
