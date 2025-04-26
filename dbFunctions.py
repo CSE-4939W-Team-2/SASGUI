@@ -10,7 +10,7 @@ SCANS_TABLE = 'scans'
 #scans table column names in order: userId, fileName, fileData
 
 'Adds row to given table'
-def add_to_table(db_location, table_name, column_names, new_values):
+def add_to_table(table_name, column_names, new_values, db_location = DB_LOCATION):
     try:
         conn = sqlite3.connect(db_location)
         cursor = conn.cursor()
@@ -26,7 +26,7 @@ def add_to_table(db_location, table_name, column_names, new_values):
         conn.close()
     return {"success": True, "message": "Row added successfully"}
 
-def add_or_replace_to_table(db_location, table_name, column_names, new_values):
+def add_or_replace_to_table(table_name, column_names, new_values, db_location = DB_LOCATION):
     conn = sqlite3.connect(db_location)
     cursor = conn.cursor()
     columns = ", ".join(column_names)
@@ -37,7 +37,7 @@ def add_or_replace_to_table(db_location, table_name, column_names, new_values):
     conn.close()
 
 'Deletes row from given table based on condition'
-def delete_row(db_location, table_name, column_name, value):
+def delete_row( table_name, column_name, value, db_location = DB_LOCATION):
     conn = sqlite3.connect(db_location)
     cursor = conn.cursor()
     query = f"DELETE FROM {table_name} WHERE {column_name} = ?"
@@ -46,7 +46,7 @@ def delete_row(db_location, table_name, column_name, value):
     conn.close()
 
 'Queries table and returns matching rows'
-def query_table(db_location, table_name, column_name=None, value=None):
+def query_table(table_name, column_name=None, value=None, db_location = DB_LOCATION):
     conn = sqlite3.connect(db_location)
     cursor = conn.cursor()
 
@@ -62,7 +62,7 @@ def query_table(db_location, table_name, column_name=None, value=None):
     return results
 
 """Changes an entry in the database based on a condition."""
-def change_entry(db_location, table_name, column_name, new_value, condition_column, condition_value):
+def change_entry( table_name, column_name, new_value, condition_column, condition_value, db_location = DB_LOCATION):
     conn = sqlite3.connect(db_location)
     cursor = conn.cursor()
     query = f"UPDATE {table_name} SET {column_name} = ? WHERE {condition_column} = ?"
@@ -77,7 +77,7 @@ def change_entry(db_location, table_name, column_name, new_value, condition_colu
 def add_to_users(username, password, email, securityQuestion = "", securityAnswer = ""): # Securely speaking this should be a hashed password, but this is basically set up to accept any string.
     columns = ["username", "password", "email", "securityQuestion", "securityAnswer"]
     values = (username, password, email, securityQuestion, securityAnswer)
-    return add_to_table(DB_LOCATION, USER_TABLE, columns, values)
+    return add_to_table(USER_TABLE, columns, values, DB_LOCATION)
     
 	
 
@@ -90,15 +90,16 @@ def add_to_scans(file_name, file_data, userId = 1):
     
     new_values = (userId, file_name, file_data)
     columns = ["userId", "fileName", "fileData"] 
-    add_or_replace_to_table(DB_LOCATION, SCANS_TABLE, columns, new_values)
+    add_or_replace_to_table( SCANS_TABLE, columns, new_values, DB_LOCATION)
+
 
 'Retrieves all scans for a specific userId'
 def get_user_scans(userId):
-    return query_table(DB_LOCATION, "scans", "userId", userId)
+    return query_table("scans", "userId", userId)
 
 """Retrieves user info for a specific userId."""
 def get_user_info(userId):
-    result = query_table(DB_LOCATION, USER_TABLE, "userId", userId)
+    result = query_table(USER_TABLE, "userId", userId, DB_LOCATION)
     if result:
         return {
             "userId": result[0][0], #I'm aware this is redundant
@@ -112,7 +113,7 @@ def get_user_info(userId):
 
 """Retrieves the user info for a specific username."""
 def get_id_by_username(username):
-    result = query_table(DB_LOCATION, USER_TABLE, "username", username)
+    result = query_table(USER_TABLE, "username", username, DB_LOCATION)
     if result:
         return {
             "userId": result[0][0]
@@ -121,7 +122,7 @@ def get_id_by_username(username):
 
 """Retrieves the user info for a specific username."""
 def get_id_by_email(email):
-    result = query_table(DB_LOCATION, USER_TABLE, "email", email)
+    result = query_table(USER_TABLE, "email", email, DB_LOCATION)
     if result:
         return {
             "userId": result[0][0]
@@ -130,11 +131,11 @@ def get_id_by_email(email):
 
 'Retrieves all scans that match the curve_type'
 def get_scans_by_curve(curve_type):
-    return query_table(DB_LOCATION, "scans", "CurveType", curve_type) #This function will not work now that curve type is held within the large string(of a dictionary) in the fileData column
+    return query_table("scans", "CurveType", curve_type, DB_LOCATION) #This function will not work now that curve type is held within the large string(of a dictionary) in the fileData column
 
 'Retrieves the scan parameters and converts into a dictionary'
 def get_scan_parameters(fileName):
-    result = query_table(DB_LOCATION, "scans", "fileName", fileName)
+    result = query_table( "scans", "fileName", fileName, DB_LOCATION)
     if result:
         return json.loads(result[0][-1])  # Last column contains JSON
     return None
@@ -143,7 +144,7 @@ def get_scan_parameters(fileName):
 def change_password_by_userId(userId, new_password):
     if not new_password:
         raise ValueError("New password cannot be empty.")
-    change_entry(DB_LOCATION, USER_TABLE, "password", new_password, "userId", userId)
+    change_entry(USER_TABLE, "password", new_password, "userId", userId, DB_LOCATION)
 
 # In dbFunctions.py
 
