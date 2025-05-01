@@ -34,7 +34,9 @@ export function Box({ shapeType, ...props }: BoxProps) {
   const [coreshelldsklength, setCoreDiskLength] = useState(1);
   const [coreshelldskthickness, setCoreDiskThickness] = useState(1);
 
+
   // Get values from Recoil global state
+
   const sphRadius = useRecoilValue(sphereRadius);
   const cylRadius = useRecoilValue(cylinderRadius);
   const cylLength = useRecoilValue(cylinderLength);
@@ -50,6 +52,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
   const coreShellDskLength = useRecoilValue(coreShellDiskLength);
   const coreShellDskThickness = useRecoilValue(coreShellDiskThickness);
 
+
   // Whenever any shape parameter updates, rescale them (divided by 800 for scene fitting)
   useEffect(() => {
     setCylRadius(cylRadius / 800);
@@ -57,6 +60,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
     setDiskRadius(dskRadius / 800);
     setDiskLength(dskLength / 800);
     setLength(cylLength / 800);
+
     setCoreCylRadius(coreShellCylRadius / 800);
     setCoreCylThickness(coreShellCylThickness / 800);
     setCoreCylLength(coreShellCylLength / 800);
@@ -71,6 +75,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
     coreShellCylRadius, coreShellCylLength, coreShellCylThickness,
     coreShellDskRadius, coreShellDskLength, coreShellDskThickness
   ]);
+
 
   // Continuously rotate the mesh for better visualization
   useFrame(() => {
@@ -107,6 +112,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
     case 'coreShellSphere':
       geometry = (
         <>
+
           {/* Core sphere */}
           <mesh position={[0, 0, 0]}>
             <sphereGeometry args={[coreshellsphradius, 32, 32]} />
@@ -117,6 +123,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
             <sphereGeometry args={[coreshellsphradius + coreshellsphthickness, 32, 32]} />
             <meshStandardMaterial color="purple" transparent={true} opacity={0.3} />
           </mesh>
+
         </>
       );
       break;
@@ -131,6 +138,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
     case 'coreShellCylinder':
       geometry = (
         <>
+
           {/* Core cylinder */}
           <mesh position={[0, 0, 0]}>
             <cylinderGeometry args={[coreshellcylradius, coreshellcylradius, coreshellcyllength, 32]} />
@@ -141,6 +149,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
             <cylinderGeometry args={[coreshellcylradius + coreshellcylthickness, coreshellcylradius + coreshellcylthickness, coreshellcyllength, 32]} />
             <meshStandardMaterial color="green" transparent={true} opacity={0.3} />
           </mesh>
+
         </>
       );
       break;
@@ -155,6 +164,7 @@ export function Box({ shapeType, ...props }: BoxProps) {
     case 'coreShellDisk':
       geometry = (
         <>
+
           {/* Core disk */}
           <mesh position={[0, 0, 0]}>
             <cylinderGeometry args={[coreshelldskradius, coreshelldskradius, coreshelldsklength, 32]} />
@@ -169,8 +179,10 @@ export function Box({ shapeType, ...props }: BoxProps) {
       );
       break;
     default:
-      console.log("Unknown shape type", shapeType);
-  }
+
+    console.warn(`Invalid shapeType received: ${shapeType}`);
+      return null;
+  } 
 
   return (
     <mesh {...props} ref={meshRef} scale={1.5}>

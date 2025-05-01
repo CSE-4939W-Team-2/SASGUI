@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, TooltipProps, ReferenceArea, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, TooltipProps, ReferenceArea, ResponsiveContainer, CartesianGrid, Label } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { useRecoilValue } from 'recoil';
 import { csvCurve } from './CSVFileReader';
@@ -20,13 +20,14 @@ const SASTooltip = ({active, payload}:TooltipProps<ValueType, NameType>) => {//F
     }
 }
 //Custom tick marks trim X values down to avoid too many digit
+
 class CustomizedAxisTick extends React.Component<{x?: number, y?:number, payload?:any}> {
   render() {
     const { x, y, payload } = this.props;
     console.log(payload);
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">
+        <text x={0} y={0} dy={12} textAnchor="middle" fill="#666">
           {payload.value.toFixed(4)}
         </text>
       </g>
@@ -168,27 +169,48 @@ export default function Charter(){
             <button type="button" className="btn update" onClick={() => zoomOut()}>
             Zoom Out
             </button>
-          <ResponsiveContainer height={300} width="95%">
+          <ResponsiveContainer height={305} width="95%">
             <LineChart
               data={data}
               onMouseDown={(e: any) =>
-                setState((prev) => ({ ...prev, refHighlightAreaLeft: e.activeLabel, refAreaLeft: e.activeTooltipIndex}))
+                setState((prev) => {
+                  try{
+                    return { ...prev, refHighlightAreaLeft: e.activeLabel, refAreaLeft: e.activeTooltipIndex}}
+                  catch{
+                    console.error("Failed to grab activelabel")
+                    return prev
+                  }})
               }
               onMouseMove={(e: any) =>{
                 state.refAreaLeft!== "" &&
-                setState((prev) => ({ ...prev, refHighlightAreaRight: e.activeLabel, refAreaRight: e.activeTooltipIndex}))}
+                setState((prev) => {
+                  try{
+                    return { ...prev, refHighlightAreaRight: e.activeLabel, refAreaRight: e.activeTooltipIndex}}
+                  catch{
+                    console.error("Failed to grab activelabel")
+                    return prev
+                  }})}
               }
               onMouseUp={() => zoom()}
+              margin={{bottom:10, right: 5, top: 5, left: 5}}
             >
               <XAxis
                 allowDataOverflow
                 domain={[left, right]}
                 type="number"
-                label={"q (Å)"} 
                 dataKey={"q"} 
                 tick={<CustomizedAxisTick/>} 
                 scale="log"
-              />
+              >
+                <Label
+                  value='q (Å)'
+                  offset={0}
+                  dx={0}
+                  dy={15}
+                  position="center"
+                  fontSize={14}
+                />
+              </XAxis>
               <YAxis
                 allowDataOverflow
                 domain={[bottom, top]}
@@ -201,6 +223,7 @@ export default function Charter(){
                     offset: 0,}}
                 tick={true}
                 scale="log"
+                padding={{bottom:0}}
               />
               <Tooltip content={<SASTooltip/>}/>
               <Line
@@ -209,6 +232,7 @@ export default function Charter(){
                 dataKey="ICsv"
                 stroke="#8884d8"
                 animationDuration={300}
+                dot={false}
               />
               <Line
                 yAxisId="1"
@@ -216,6 +240,7 @@ export default function Charter(){
                 dataKey="ISim"
                 stroke="#950606"
                 animationDuration={300}
+                dot={false}
               />
               <CartesianGrid stroke="#ccc"/>
               {refHighlightAreaLeft && refHighlightAreaRight ? (

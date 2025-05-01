@@ -8,10 +8,36 @@ import { coreShellCylinderSliders } from "../atoms/coreShellCylinderTemplate";
 import { diskSliders } from "../atoms/diskTemplate";
 import { coreShellDiskSliders } from "../atoms/coreShellDiskTemplate";
 import { cylinderSliders } from "../atoms/cylinderTemplate";
+import Modal from 'react-modal';
+import { useState } from "react";
+import { backend_link } from "../App";
+const customStyles = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+    },
+  };
 export default function SaveRemote() {
     const fileName = useRecoilValue(csvFileName);
     const curveData = useRecoilValue(csvCurve);
     const morphology = useRecoilValue(currentMorphology);
+    const [modalIsOpen, setIsOpen] = useState(false);
+    const [saveNames, setSaveNames] = useState<string[]>([]);
+    const [selectedSave, setSelectedSave] = useState<string>("noSaves")
+    const [modalInputText, setModalInputText] = useState<string>("")
+    const openModal = () =>{
+        setIsOpen(true);
+    }
+    const afterOpenModal =()=> {
+        
+    }
+    const closeModal = () => {
+        setIsOpen(false);
+    }
     const sphereData = sphereSliders.map((slider:sliderObj)=>{
         return(
         {
@@ -56,8 +82,31 @@ export default function SaveRemote() {
     })
     const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        const name = prompt("Please enter a name");
-        if(name!== null){
+        fetch(`${backend_link}/get_user_scans?userId=${1}`, {//Make the request
+            method: 'GET',
+            mode:'cors',//For CORSs
+            headers: {
+              "Access-Control-Allow-Origin":"*"//For CORS
+            }
+          }).then(response => response.json()).then(data=>{
+            console.log("Success: ", data.message);
+            setSaveNames(data.scans)
+            openModal()
+        }
+          )
+          .catch(error => {
+            console.error('Error:', error);
+            alert("Error getting file names")
+          })
+    }
+    const handleSelectSave = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        console.log(event.target.value)
+        setSelectedSave(event.target.value)
+        setModalInputText(event.target.value)
+    }
+    const handleSaveScanButton = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        if(modalInputText!== ""){
             const jsonState:saveLoad = {
                 fileName: fileName,
                 curveData: curveData,
@@ -69,13 +118,13 @@ export default function SaveRemote() {
                 diskData: diskData,
                 coreShellDiskData: coreShellDiskData            
             }        
-            fetch('http://localhost:5000/save_to_database', {//Make the request
+            fetch(`${backend_link}/save_to_database`, {//Make the request
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: JSON.stringify({
                     data:JSON.stringify(jsonState),
-                    userId: 123123123,
-                    name: name
+                    userId: 1,
+                    name: modalInputText
                 }),
                 headers: {
                   "Content-Type":"application/json",
@@ -85,6 +134,11 @@ export default function SaveRemote() {
               .then(response => response.json())
               .then(data => {
                 console.log('Success:', data);
+                if(data.error){
+                    alert(`Error: ${data.error}`)
+                }
+                else alert("File Saved Successfully")
+                closeModal()
               })
               .catch(error => {
                 console.error('Error:', error);
@@ -92,6 +146,35 @@ export default function SaveRemote() {
         }
     }
     return(
+        <div>
+            <Modal
+            isOpen={modalIsOpen}
+            onAfterOpen={afterOpenModal}
+            onRequestClose={closeModal}
+            style={customStyles}
+            contentLabel="Example Modal">
+                <h2>Select a scan to overwrite from the dropdown, or enter a new name</h2>
+                <button onClick={closeModal}>Cancel</button>
+                <form>
+                    <input value={modalInputText} onChange={(event) => {
+                        setModalInputText(event.target.value);
+                        setSelectedSave("noSaves")
+                        }}/>
+                    <select name="saves" style={{height:"50px", backgroundColor:"#E1B6B0", borderRadius:"5px"}} onChange={handleSelectSave}
+                                value={selectedSave}>
+                                    <option value="noSaves" disabled hidden>Select a Save</option>
+                                    {saveNames?.map((save:string, i)=>{
+                                        //Maps the values in morphologyValues from morphologyTemplate
+                                        return(
+                                            <option key={i} value={save}>{save}</option>
+                                        )
+                                    })}
+                                </select>
+                    <button onClick={handleSaveScanButton}>Save Scan</button>
+                    {/*<button>Delete Scan Scan</button>*/}
+                </form>
+            </Modal>
             <button style={{width:"150px", height:"80px", marginBottom:"7.4px"}} onClick={handleSave}>Save Remote</button>
+        </div>
     )
 }

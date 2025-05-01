@@ -1,4 +1,4 @@
-import { atom, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
 import Page, { sliderObj } from '../components/Page'
 import { sphereSliders } from '../atoms/sphereTemplate'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -10,6 +10,7 @@ import { coreShellDiskSliders } from '../atoms/coreShellDiskTemplate';
 import { currentMorphology } from '../atoms/morphologyTemplate';
 import { useEffect } from 'react';
 import { csvCurve } from './CSVFileReader';
+import { backend_link } from '../App';
 export const curveWithCSVData = atom({
     key: 'curveWithCSVData',
     default: [] as curveWithCSVData[]
@@ -45,6 +46,7 @@ export default function Wrapper() {
     coreShellDiskSliders.map((slider:sliderObj)=>{
         coreShellDiskData[slider.atomic.key] = useRecoilValue(slider.atomic)
     })
+    
     useEffect(()=>{
         //Using a switch case, the object containing the data for the current morphology is selected
         let data = null
@@ -75,7 +77,7 @@ export default function Wrapper() {
         }
         //Send off the data
         if(data!==null){
-            fetch('http://localhost:5000/simulate_graph',{
+            fetch(`${backend_link}/simulate_graph`,{
                 method: 'POST',
                 mode:'cors',//For CORSs
                 body: JSON.stringify(data),

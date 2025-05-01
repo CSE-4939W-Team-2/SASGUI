@@ -20,7 +20,6 @@ import { Box } from "./cube.js"; // 3D box/cube component
 
 // Import Recoil atom for morphology selection
 import { currentMorphology } from "../atoms/morphologyTemplate.js";
-
 // Import static image
 import FinalRuler from "../assets/FinalRuler.png";
 
@@ -133,6 +132,14 @@ export default function Page(props: Props) {
                     />
                 </div>
             </div>
+            {/* Image Section */}
+            <div style={{ display: morphology == "/"? "none" : "flex", justifyContent: "center", alignItems: "center", marginTop: "20px" }}>
+                        <img
+                            src={FinalRuler} // Using the imported path
+                            alt="nanometer ruler"
+                            style={{ width: "50px", height: "auto", objectFit: "contain" }}
+                        />
+                    </div>
         </div>
     );
 }

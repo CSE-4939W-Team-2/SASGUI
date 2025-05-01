@@ -6,6 +6,8 @@ from sasmodels.direct_model import call_kernel
 import sys
 sys.path.append('hierarchical_SAS_analysis-main 2')
 import numpy as np
+import startup
+import dbFunctions
 
 import structlog
 import logging
@@ -27,6 +29,113 @@ logging_dir.mkdir(exist_ok=True)
 
 request_id_var = ContextVar("request_id", default=None)
 request_start_time_var = ContextVar("request_start_time", default=None)
+
+import hashlib
+from collections import defaultdict
+import threading
+
+SAMPLING_CONFIG = {
+    "simulate_graph": {
+        "rate": 0.01, # 1% of requests
+        "summary_interval": 1200 # 20 minutes
+    }
+}
+
+endpoint_metrics = defaultdict(lambda: {
+    "calls": 0,
+    "errors": 0,
+    "total_duration": 0,
+    "min_duration_ms": float('inf'),
+    "max_duration_ms": float('-inf'),
+    "last_summary_time": time.time(),
+    "by_morphology": defaultdict(lambda: {
+        "calls": 0,
+        "errors": 0,
+        "total_duration": 0
+    })
+})
+
+metrics_lock = threading.Lock() # can remove endpoint metrics if performace heavily impacted
+
+def should_sample(request_id, endpoint): # threading + stateless
+    """Determine if this request should be sampled for logging"""
+    if endpoint not in SAMPLING_CONFIG:
+        return True
+    
+    hash_val = int(hashlib.md5(request_id.encode()).hexdigest(), 16)
+    return (hash_val % 100) < (SAMPLING_CONFIG[endpoint]["rate"] * 100)
+
+def update_metrics(endpoint, duration_ms, error=False, metadata=None):
+    with metrics_lock:
+        metrics = endpoint_metrics[endpoint]
+        metrics["calls"] += 1
+        metrics["total_duration"] += duration_ms
+        metrics["min_duration_ms"] = min(metrics["min_duration_ms"], duration_ms)
+        metrics["max_duration_ms"] = max(metrics["max_duration_ms"], duration_ms)
+
+        if error:
+            metrics["errors"] += 1
+
+        if metadata and "morphology" in metadata:
+            morphology = metadata["morphology"]
+            morph_matrics = metrics["by_morphology"][morphology]
+            morph_matrics["calls"] += 1
+            morph_matrics["total_duration"] += duration_ms
+            if error:
+                morph_matrics["errors"] += 1
+        
+        current_time = time.time()
+        if (current_time - metrics["last_summary_time"]) > SAMPLING_CONFIG.get(endpoint, {}).get("summary_interval", 60):
+            log_metrics_summary(endpoint)
+            metrics["last_summary_time"] = current_time
+
+def log_metrics_summary(endpoint):
+    """Log a summary of metrics for the endpoint"""
+    metrics = endpoint_metrics[endpoint]
+
+    if metrics["calls"] == 0:
+        return
+    
+    avg_duration = metrics["total_duration"] / metrics["calls"]
+    error_rate = metrics["errors"] / metrics["calls"] if metrics["calls"] > 0 else 0
+
+    logger.info(
+        f"{endpoint}_summary",
+        calls=metrics["calls"],
+        errors=metrics["errors"],
+        error_rate_percent=round(error_rate, 2),
+        avg_duration_ms=round(avg_duration, 2),
+        min_duration_ms=round(metrics["min_duration_ms"],2),
+        max_duration_ms=round(metrics["max_duration_ms"],2),
+    )
+
+    if metrics["by_morphology"]:
+        top_morphology = sorted(
+            metrics["by_morphology"].items(),
+            key=lambda x: x[1]["calls"],
+            reverse=True
+        )[:3]
+
+        for morphology, morph_metrics in top_morphology:
+            morph_avg_duration = morph_metrics["total_duration"] / morph_metrics["calls"] if morph_metrics["calls"] > 0 else 0
+            morph_error_rate = (morph_metrics["errors"] / morph_metrics["calls"]) * 100 if morph_metrics["calls"] > 0 else 0
+
+            logger.info(
+                f"{endpoint}_morphology_summary",
+                morphology=morphology,
+                calls=morph_metrics["calls"],
+                percentage=round((morph_metrics["calls"] / metrics["calls"]) * 100, 2),
+                avg_duration_ms=round(morph_avg_duration, 2),
+                error_rate_percent=round(morph_error_rate, 2),
+            )
+
+    metrics["calls"] = 0
+    metrics["errors"] = 0
+    metrics["total_duration"] = 0
+    metrics["min_duration_ms"] = float('inf')
+    metrics["max_duration_ms"] = float('-inf')
+    metrics["by_morphology"] = defaultdict(lambda: {"calls": 0, "errors": 0, "total_duration": 0})
+
 
 def add_app_context(logger, function, event_dict):
     """Add application context to structred log events"""
@@ -237,8 +346,6 @@ def log_request(f):
 
     return decorated
 
-import startup
-
 app = Flask(__name__)
 app.wsgi_app = Middleware(app.wsgi_app)
 cors = CORS(app, resources={r"/*": {"origins": ["http://sasgui.cse.uconn.edu:5173","sasgui.cse.uconn.edu:5173", "http://sasgui.cse.uconn.edu", "sasgui.cse.uconn.edu", "http://localhost:5173"]}})
@@ -266,16 +373,11 @@ def log_performace(logger, operation, start_time, **kwargs):
         **kwargs
     )
 
-# TODO: database connection
-DATABASE = {}
 
 # FIle Handling
-import os
-
 UPLOAD_FOLDER = os.path.abspath("hierarchical_SAS_analysis-main 2/data") # Directly use the existing folder path
 
 @app.route('/upload', methods=['POST'])
-#Breaks file upload to have @log_request uncommented
 #@log_request
 def upload_file():
     operation_start = time.time()
@@ -286,18 +388,16 @@ def upload_file():
         return jsonify({'message': 'No file part in the request'}), 400
     
     file = request.files['file']
+   
     if file.filename == '':
         logger.warning("file_upload_failed", reason="No file selected for uploading")
         return jsonify({'message': 'No file selected for uploading'}), 400
     
     try:
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)  # Fixed filename
         file.save(file_path)
-
-        #These break file upload
         file_size = os.path.getsize(file_path)
         file_extension = os.path.splitext(file.filename)[1]
-        #This breaks file upload too
         logger.info(
             "file_uploaded",
             filename=file.filename,
@@ -305,7 +405,6 @@ def upload_file():
             file_extension=file_extension,
             context_type=file.content_type
         )
-
         log_performace(
             logger,
             "file_upload",
@@ -318,354 +417,257 @@ def upload_file():
         return jsonify(result)
     except Exception as e:
         logger.error(
-            "file_upload_failed",
-            filename=file.filename if file else "unknown",
-            error=str(e),
-            traceback=traceback.format_exc()
+        "file_upload_failed",
+        filename=file.filename if file else "unknown",
+        error=str(e),
+        traceback=traceback.format_exc()
         )
         return jsonify({'message': 'File upload failed'}), 500
 
-@app.route("/chd", methods=['POST','GET'])
-@log_request
-def chd():
-    if request.method == 'POST':
-            operation_start = time.time()
+# @app.route("/shape", methods=['POST','GET'])
+# def chd():
+#     if request.method == 'POST':
+#             json  = request.get_json()
+#             shape = json.get('shape')
+#             return startup.main(shape) #returns dimensions for morphology
+#     return {'name': 5}
 
-            try:
-                json  = request.get_json()
-                shape = json.get('shape')
-                logger.info("chd_shape_received", shape=shape)
-
-                # result = startup.main(shape)
-
-                logger.info("chd_processing_success", shape=shape)
-
-                log_performace(
-                    logger,
-                    "chd_processing",
-                    operation_start,
-                    shape=shape
-                )
-
-                return None #result
-            except Exception as e:
-                logger.error(
-                    "chd_processing_failed",
-                    error=str(e),
-                    error_type=type(e).__name__,
-                    traceback=traceback.format_exc()
-                )
-                return jsonify({'message': 'CHD processing failed'}), 500
-            
-    if file:
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)  # Fixed filename
-        file.save(file_path)
-        #return jsonify({'message': 'File successfully uploaded', 'file_path': file_path}), 200
-        result = startup.main2(file_path)
-        print("Function output:", result)  # Check if function returns a valid dictionary
-        os.remove(file_path)
-        return jsonify(result)
-    return jsonify({'message': 'Fatal error in ML model'}), 400
+# @app.route('/get_all_files', methods=['GET'])
+# def get_all_files():
+#     """Returns the names of all files in the upload folder."""
+#     try:
+#         # List all files in the upload folder
+#         file_names = os.listdir(UPLOAD_FOLDER)
+        
+#         # Filter out directories, keep only files
+#         file_names = [f for f in file_names if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+        
+#         return jsonify({"message": "Files retrieved successfully", "files": file_names}), 200
+#     except Exception as e:
+#         return jsonify({"message": "Error retrieving files", "error": str(e)}), 500
     
+# @app.route('/delete_file', methods=['DELETE'])
+# def delete_file():
+#     """Deletes a specified file from the upload folder."""
+#     try:
+#         # Get the filename from the request data
+#         data = request.get_json()
+#         file_name = data.get('file_name')
+        
+#         if not file_name:
+#             return jsonify({"message": "No file name provided"}), 400
+
+#         # Construct the full file path
+#         file_path = os.path.join(UPLOAD_FOLDER, file_name)
+
+#         # Check if file exists
+#         if not os.path.exists(file_path):
+#             return jsonify({"message": "File not found"}), 404
+        
+#         # Remove the file
+#         os.remove(file_path)
+        
+#         return jsonify({"message": f"File {file_name} deleted successfully"}), 200
+#     except Exception as e:
+#         return jsonify({"message": "Error deleting file", "error": str(e)}), 500
 
 
-
-
-# Param Updates, dont think we use this -- Not added to logging
-@app.route('/update_params', methods=['POST'])
-def update_params():
-    """Updates parameters for the prediction model."""
-    params = request.json
+# # Param Updates, dont think we use this
+# @app.route('/update_params', methods=['POST'])
+# def update_params():
+#     """Updates parameters for the prediction model."""
+#     params = request.json
     
-    # TODO: Validate and update parameters in the system
-    return jsonify({"message": "Parameters updated", "params": params})
+#     # TODO: Validate and update parameters in the system
+#     return jsonify({"message": "Parameters updated", "params": params})
 
 
-# ML?
-@app.route('/predict', methods=['POST'])
-@log_request
-def predict():
-    """Calls the ML classifier to predict shape."""
-    operation_start = time.time()
-
-    try:
-        input_data = request.json  # Expecting input parameters
-
-        logger.info("prediction_request", input_data=input_data)
-        
-        # TODO: Call the trained ML model for prediction
-        prediction = {"shape": "predicted_shape", "confidence": 0.95}  # test response
-
-        logger.info("prediction_success", prediction=prediction, confidence=prediction.get("confidence"))
-
-        log_performace(
-            logger,
-            "prediction",
-            operation_start,
-        )
-        
-        return jsonify({"message": "Prediction successful", "prediction": prediction})
-    except Exception as e:
-        logger.error(
-            "prediction_failed",
-            error = str(e),
-            input_data = input_data if 'input_data' in locals() else None,
-            traceback=traceback.format_exc()
-        )
-        return jsonify({"message": "Prediction failed"}), 500
-
-
-# Curve SImulations
-@app.route('/simulate_curve', methods=['POST'])
-@log_request
-def simulate_curve():
-    """Simulates a curve based on input parameters."""
-    operation_start = time.time()
-
-    try:
-        params = request.json
-
-        logger.info("curve_simulation_request", params=params)
-        
-        # TODO: Implement curve simulation logic
-        simulated_curve = {"curve_data": [0, 1, 2, 3]}  # test response
-
-        logger.info("curve_simulation_success", curve_points=len(simulated_curve.get("curve_data", [])))
-
-        log_performace(
-            logger,
-            "curve_simulation",
-            operation_start
-        )
-
-        
-        return jsonify({"message": "Curve simulated", "curve": simulated_curve})
-    except Exception as e:
-        logger.error(
-            "curve_simulation_failed",
-            error=str(e),
-            params=params if 'params' in locals() else None,
-            traceback=traceback.format_exc()
-        )
-        return jsonify({"message": "Curve simulation failed"}), 500
-
-
-@app.route('/get_3d_model', methods=['GET'])
-@log_request
-def get_3d_model():
-    """Fetches a 3D model."""
-    operation_start = time.time()
+# # ML?
+# @app.route('/predict', methods=['POST'])
+# def predict():
+#     """Calls the ML classifier to predict shape."""
+#     input_data = request.json  # Expecting input parameters
     
-    try:
-        logger.info("3d_model_request")
-
-        # TODO: Fetch or generate a 3D model
-        model_data = {"model": "3D_model_placeholder"}  # test response
-
-        logger.info("3d_model_generated")
-
-        log_performace(
-            logger,
-            "3d_model_generation",
-            operation_start
-        )
-
-        return jsonify({"message": "3D Model generated", "model": model_data})
-    except Exception as e:
-        logger.error(
-            "3d_model_generation_failed",
-            error=str(e),
-            traceback=traceback.format_exc()
-        )
-        return jsonify({"message": "3D Model generation failed"}), 500
+#     # TODO: Call the trained ML model for prediction
+#     prediction = {"shape": "predicted_shape", "confidence": 0.95}  # test response
+    
+#     return jsonify({"message": "Prediction successful", "prediction": prediction})
 
 
-# DB # TODO: update
 @app.route('/save_to_database', methods=['POST'])
-@log_request
+#saving still works with @log_request uncommented but it throws an error
+#@log_request 
 def save_to_database():
     """Saves prediction or curve data to the database."""
     operation_start = time.time()
-
     try:
         data = request.json
-
+        
         logger.info("database_save_request", data_size=len(json.dumps(data)))
-        
-        # TODO: Implement database save logic
-        DATABASE["latest"] = data  # test database save
 
-        logger.info("database_save_success")
-
-        log_performace(
-            logger,
-            "database_save",
-            operation_start
-        )
-        
-        return jsonify({"message": "Data saved successfully"})
+        if "name" in data:
+            dbFunctions.add_to_scans(file_name = data.get("name"), file_data = data.get("data"), userId = data.get("userId"))
+            logger.info("database_save_success")
+            log_performace(
+                logger,
+                "database_save",
+                operation_start
+            )            
+            return jsonify({"message": "Data saved successfully"})
+        else:
+            result = dbFunctions.add_to_users(username = data.get("username"), password = data.get("password"), email = data.get("email"), securityAnswer = data.get("securityAnswer"), securityQuestion = data.get("securityQuestion"))
+            if result["success"]:
+                logger.info("database_save_success")
+                log_performace(
+                    logger,
+                    "database_save",
+                    operation_start
+                )            
+                return jsonify({"message": "Data saved successfully"})
+            else:
+                return jsonify(result)
     except Exception as e:
         logger.error(
             "database_save_failed",
             error=str(e),
             traceback=traceback.format_exc()
         )
-        return jsonify({"message": "Database save failed"}), 500
+        return jsonify({"message": "Failed to save data", "error": str(e)}), 500
 
-
-@app.route('/get_database_data', methods=['GET'])
-@log_request
-def get_database_data():
-    """Retrieves data from the database."""
-    operation_start = time.time()
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        if not username or not password:
+            return jsonify({"message": "Missing username or password"}), 400
+        
+        db_result = dbFunctions.get_id_by_username(username)
+        if not db_result:
+            return jsonify({"message": "Unknown username or password"}), 401
+        else:
+            userId = db_result.get("userId")
+        
+        user_credentials = dbFunctions.get_user_info(userId)
+        
+        if user_credentials and user_credentials['password'] == password and user_credentials['username'] == username:
+            return jsonify({"message": "Login successful", "userId": user_credentials['userId']}), 200
+        else:
+            return jsonify({"message": "Unknown username or password"}), 401
+    except Exception as e:
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
     
+@app.route('/get_security_question', methods=['POST'])
+def get_security_question():
     try:
-        logger.info("database_retrieval_request")
-
-        # TODO: Implement database retrieval logic
-        stored_data = DATABASE.get("latest", {})
-
-        logger.info("database_retrieval_success", data_found=bool(stored_data),data_size=len(json.dumps(stored_data)) if stored_data else 0)
-
-        log_performace(
-            logger,
-            "database_retrieval",
-            operation_start
-        )
-        
-        return jsonify({"message": "Data retrieved", "data": stored_data})
+        data = request.json
+        email = data.get('email')
+        db_result = dbFunctions.get_id_by_username(email)
+        if not db_result:
+            return jsonify({"message": "Unknown email"}), 401
+        else:
+            userId = db_result.get("userId")
+        user_credentials = dbFunctions.get_user_info(userId)
+        return jsonify({"message": "email found", "security_question": user_credentials["security_question"], "userId": user_credentials["userId"]}), 200
     except Exception as e:
-        logger.error(
-            "database_retrieval_failed",
-            error=str(e),
-            traceback=traceback.format_exc()
-        )
-        return jsonify({"message": "Database retrieval failed"}), 500
+        print(f"Error during login: {e}")
+        return jsonify({"message": "An error occurred during login", "error": str(e)}), 500
 
-
-# Output and Visualization
-@app.route('/generate_graph', methods=['POST'])
-@log_request
-def generate_graph():
-    """Generates a graph based on input data."""
-    operation_start = time.time()
-
+@app.route('/reset_password_with_security_question', methods=['POST'])
+def reset_password_with_security_question():
+    """Resets the password for a user based on security question answer."""
     try:
-        input_data = request.json
-        
-        logger.info("graph_generation_request", input_data=input_data)
+        data = request.json
+        userId = data.get('userId')
+        security_answer = data.get('security_answer')
+        new_password = data.get('password')
 
-        # TODO: Implement graph generation logic
-        graph_data = {"graph": "graph_placeholder"}  # test response
+        if not security_answer or not new_password:
+            return jsonify({"message": "Missing required fields"}), 400
 
-        logger.info("graph_generation_success")
+        user_credentials = dbFunctions.get_user_info(userId)
+        if user_credentials and user_credentials['security_answer'] == security_answer:
+            # Update the password in the database
+            dbFunctions.change_password_by_userId(userId, new_password)
+            return jsonify({"message": "Password reset successful"}), 200
+        else:
+            return jsonify({"message": "Incorrect security answer"}), 401
 
-        log_performace(
-            logger,
-            "graph_generation",
-            operation_start
-        )
-        
-        return jsonify({"message": "Graph generated", "graph": graph_data})
     except Exception as e:
-        logger.error(
-            "graph_generation_failed",
-            error=str(e),
-            input_data=input_data if 'input_data' in locals() else None,
-            traceback=traceback.format_exc()
-        )
-        return jsonify({"message": "Graph generation failed"}), 500
-
-
-@app.route('/output_3d_model', methods=['GET'])
-@log_request
-def output_3d_model():
-    """Outputs the 3D model for display."""
-    operation_start = time.time()
+        print(f"Error during password reset: {e}")
+        return jsonify({"message": "An error occurred during password reset", "error": str(e)}), 500
     
+
+# @app.route('/get_database_data', methods=['GET'])
+# def get_database_data():
+#     """Retrieves data from the database."""
+    
+#     # TODO: Implement database retrieval logic
+#     stored_data = DATABASE.get("latest", {})
+    
+#     return jsonify({"message": "Data retrieved", "data": stored_data})
+
+@app.route('/get_user_scans', methods=['GET'])
+def get_user_scans_route():
+    """Retrieve all scan names for a specific user by userId."""
     try:
-        logger.info("3d_model_display_request")
-
-        # TODO: Retrieve and serve 3D model data
-        output_model = {"3D_model": "display_3D_model_placeholder"}  # test response
-
-        logger.info("3d_model_display_success")
+        userId = request.args.get('userId')  # Get userId from query parameter
         
-        log_performace(
-            logger,
-            "3d_model_display",
-            operation_start
-        )
+        if not userId:
+            return jsonify({"message": "userId parameter is required"}), 400
         
-        return jsonify({"message": "3D Model displayed", "model": output_model})
+        # Assuming dbFunctions.get_user_scans(userId) returns a list of scans
+        scans = dbFunctions.get_user_scans(userId)
+        
+        if not scans:
+            return jsonify({"message": "No scans found for the given userId"}), 404
+        
+        # Extract just the scan names (assuming 'name' is the field in the scan data)
+        scan_names = [scan[1] for scan in scans]
+        
+        return jsonify({"message": "Scans retrieved successfully", "scans": scan_names}), 200
     except Exception as e:
-        logger.error(
-            "3d_model_display_failed",
-            error=str(e),
-            traceback=traceback.format_exc()
-        )
-        return jsonify({"message": "3D Model display failed"}), 500
+        print(f"Error retrieving user scans: {e}")
+        return jsonify({"message": "Error retrieving user scans", "error": str(e)}), 500
 
+@app.route('/get_scan_data', methods=['GET'])
+def get_scan_data_route():
+    """Retrieve scan data for a specific scan name and userId."""
+    try:
+        userId = request.args.get('userId')  # Get userId from query parameter
+        scan_name = request.args.get('name')  # Get scan name from query parameter
+        
+        if not userId or not scan_name:
+            return jsonify({"message": "Both userId and name parameters are required"}), 400
+        
+        # Call the dbFunctions.get_scan_data_by_name_and_user_id function to fetch scan data
+        scan_data = dbFunctions.get_scan_data_by_name_and_user_id(userId, scan_name) 
+        
+        if not scan_data:
+            return jsonify({"message": "No data found for the given scan name and userId"}), 404
+        
+        return jsonify({"message": "Scan data retrieved successfully", "data": scan_data}), 200
+    except Exception as e:
+        print(f"Error retrieving scan data: {e}")
+        return jsonify({"message": "Error retrieving scan data", "error": str(e)}), 500
 # -----
 #SASVIEW
 def process_request(json, model_name, param_mapping):
     """Helper function to process requests and generate scattering data."""
-    operation_start = time.time()
-    request_id = request_id_var.get() or str(uuid.uuid4())
-
-    try:
-        logger.info(
-            "scattering_calculation_requested",
-            request_id=request_id,
-            model_name=model_name,
-            param_count=len(param_mapping)
-        )
-
-        q = np.loadtxt('q_200.txt', delimiter=',', dtype=float)
-
-        logger.info("q_values_loaded", q_points=len(q))
-
-        pars = param_mapping.copy()
-        
-        for key, json_key in param_mapping.items():
-            if json_key in json:
-                pars[key] = json.get(json_key)
-            
-        logger.info("parameters_mapped", parameters=pars)
-        
-        model = load_model(model_name)
-
-        logger.info("model_loaded", model_name=model_name)
-
-        kernel = model.make_kernel([q])
-
-        logger.info("kernel_made")
-
-        Iq = call_kernel(kernel, pars) + 0.001
-
-        logger.info("scattering_calculation_completed", q_points=len(q), Iq_points=len(Iq))
-        
-        response = {'xval': np.array(q).tolist(), 'yval': np.array(Iq).tolist()}
-        
-        log_performace(
-            logger,
-            "scattering_calculation",
-            operation_start,
-            q_points=len(q),
-            Iq_points=len(Iq)
-        )
-
-        return response
+    q = np.loadtxt('q_200.txt', delimiter=',', dtype=float)
+    pars = param_mapping.copy()
     
-    except Exception as e:
-        logger.error(
-            "scattering_calculation_failed",
-            error=str(e),
-            request_id=request_id,
-            traceback=traceback.format_exc()
-        )
-        raise
-
+    for key, json_key in param_mapping.items():
+        if json_key in json:
+            pars[key] = json.get(json_key)
+    
+    model = load_model(model_name)
+    kernel = model.make_kernel([q])
+    Iq = call_kernel(kernel, pars) + 0.001
+    
+    return {'xval': np.array(q).tolist(), 'yval': np.array(Iq).tolist()}
 """@app.route("/simulate_graph", methods=["POST"])
 def sim_graph():
     if request.method == 'POST':
@@ -676,7 +678,6 @@ def graphASphere(data):
     """'radius_pd_type':'schulz',
             'radius_pd_n' : '40',
             'radius_pd_nsigma': '3',"""
-    logger.info("sphere_calculation_requested", data=data)
     param_mapping = {
             'background': 'sphereBackground',
             'radius_pd': 'spherePolydispersity',
@@ -690,7 +691,6 @@ def graphASphere(data):
 
     }
     return process_request(data, 'sphere', param_mapping)
-
 def graphACoreShellSphere(data):
     param_mapping = {
             'background': 'coreShellSphereBackground',
@@ -779,18 +779,19 @@ MORPHOLOGY_FUNCTIONS = {
 }
 
 @app.route('/simulate_graph', methods=['POST'])
-@log_request
 def simulate_graph():
-    #operation_start = time.time()
+    operation_start = time.time()
+    request_id = request_id_var.get() or str(uuid.uuid4())
+    error_occured = False
+    morphology = None
+    
+    data = request.get_json()
     try:
-        data = request.get_json()
-
         if not data or "morphology" not in data:
             logger.warning("simulate_graph_validation_failed", reason="Morphology not specified")
             return jsonify({"error": "Morphology not specified"}), 400
-
         morphology = data["morphology"]
-        
+    
         if morphology not in MORPHOLOGY_FUNCTIONS:
             logger.warning(
                 "simulate_graph_validation_failed",
@@ -799,128 +800,77 @@ def simulate_graph():
                 available_morphologies=list(MORPHOLOGY_FUNCTIONS.keys())
             )
             return jsonify({"error": "Invalid morphology"}), 400
-
-        """logger.info(
-            "simulate_graph_request",
-            morphology=morphology,
-            parameters=data
-        )"""
-
+        should_log = should_sample(request_id, "simulate_graph") # 1% condition is met, log the request
+        if should_log:
+            logger.info(
+                "simulate_graph_requested",
+                request_id=request_id,
+                morphology=morphology,
+                parameters=data
+            )
         # Call the function
-        response = MORPHOLOGY_FUNCTIONS[morphology](data)
+        try:
+            response = MORPHOLOGY_FUNCTIONS[morphology](data)
+            if should_log:
+                logger.info(
+                    "simulate_graph_calculation_completed",
+                    request_id=request_id,
+                    morphology=morphology,
+                    duration_ms=round((time.time() - operation_start) * 1000, 2)
+                )
+        except Exception as e:
+            error_occured = True
 
-        #logger.info("simulate_graph_success", morphology=morphology)
+            logger.error(
+                "simulate_graph_calculation_failed",
+                request_id=request_id,
+                morphology=morphology,
+                error=str(e),
+                traceback=traceback.format_exc()
+            )
+            return jsonify({"error": f"Calculation error: {str(e)}"}), 500
+        
+        total_duration_ms = round((time.time() - operation_start) * 1000, 2)
 
-        """log_performace(
-            logger,
+        update_metrics(
             "simulate_graph",
-            operation_start,
-            morphology=morphology
-        )"""
+            total_duration_ms,
+            error=error_occured,
+            metadata={
+                "morphology": morphology,
+            }
+        )
+
+        if should_log: # log performance
+            log_performace(
+                logger,
+                "simulate_graph",
+                operation_start,
+                request_id=request_id,
+                morphology=morphology,
+                duration_ms=total_duration_ms,
+            )
 
         return jsonify(response)
     except Exception as e:
+        error_occured = True
+
         logger.error(
             "simulate_graph_failed",
             error=str(e),
             traceback=traceback.format_exc()
         )
+
+        duration_ms = round((time.time() - operation_start) * 1000, 2)
+        update_metrics( # update metrics with an error
+            "simulate_graph",
+            duration_ms,
+            error=True,
+            metadata={
+                "morphology": morphology,
+            }
+        )
         return jsonify({"error": "Graph simulation failed"}), 500
-    
-# @app.route("/graphcsd", methods=['POST','GET'])
-# def chartcsd():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'length': 'h',
-#             'radius': 'radius',
-#             'background': 0.001,
-#             'scale': 1,
-#             'length_pd': 0.5,
-#             'length_pd_type': 'schulz',
-#             'length_pd_n': 40,
-#             'length_pd_nsigma': 3
-#         }
-#         return process_request(json_data, 'cylinder', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/csd", methods=['POST','GET'])
-# def csd():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'length': 'h',
-#             'radius': 'radius',
-#             'thickness': 'thickness',
-#             'sld_core': 'sldcore',
-#             'sld_shell': 'sldshell',
-#             'sld_solvent': 'sldsolvent',
-#             'background': 'background',
-#             'scale': 'scale',
-#             'length_pd': 'pd'
-#         }
-#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/graph", methods=['POST','GET'])
-# def chart():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'length': 'h',
-#             'radius': 'radius',
-#             'scale': 'scale',
-#             'sld': 'sld',
-#             'sld_solvent': 'sldsolvent',
-#             'background': 'background',
-#             'length_pd': 'pd'
-#         }
-#         return process_request(json_data, 'cylinder', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/sph", methods=['POST','GET'])
-# def spheregraph():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'radius': 'sphereRadius',
-#             'scale': 'sphereScale',
-#             'sld': 'sphereScatteringLengthDensity',
-#             'background': 'sphereBackground',
-#             'radius_pd': 'spherePolydispersity',
-#             'sld_solvent': 'sphereScatteringLengthSolvent'
-#         }
-#         return process_request(json_data, 'sphere', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/css", methods=['POST','GET'])
-# def cssgraph():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'radius': 'radius',
-#             'thickness': 'thickness',
-#             'scale': 'scale',
-#             'background': 'background',
-#             'sld_core': 'sldcore',
-#             'sld_shell': 'sldshell',
-#             'sld_solvent': 'sldsolvent',
-#             'radius_pd': 'pd'
-#         }
-#         return process_request(json_data, 'core_shell_sphere', param_mapping)
-#     return {'name': 5}
-
-# @app.route("/csc", methods=['POST','GET'])
-# def cscgraph():
-#     if request.method == 'POST':
-#         json_data = request.get_json()
-#         param_mapping = {
-#             'radius': 'radius',
-#             'thickness': 'thickness',
-#             'length': 'h'
-#         }
-#         return process_request(json_data, 'core_shell_cylinder', param_mapping)
-#     return {'name': 5}
 
 
 @app.before_first_request
@@ -960,16 +910,4 @@ def health_check():
 if __name__ == '__main__':
     app.config["START_TIME"] = time.time()
     app.run(debug=True)
-
-
-"""def graphASphere(data):
-    param_mapping = {
-            'radius': 'sphereRadius',
-            'scale': 'sphereScale',
-            'sld': 'sphereScatteringLengthDensity',
-            'background': 'sphereBackground',
-            'radius_pd': 'spherePolydispersity',
-            'sld_solvent': 'sphereScatteringLengthSolvent'
-    }
-    return process_request(data, 'sphere', param_mapping)"""
 
