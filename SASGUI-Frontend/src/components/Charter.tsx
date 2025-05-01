@@ -230,7 +230,7 @@ export default function Charter(){
                 yAxisId="1"
                 type="monotone"
                 dataKey="ICsv"
-                stroke="#950606"
+                stroke="#8884d8"
                 animationDuration={300}
                 dot={false}
               />
@@ -238,7 +238,7 @@ export default function Charter(){
                 yAxisId="1"
                 type="monotone"
                 dataKey="ISim"
-                stroke="#8884d8"
+                stroke="#950606"
                 animationDuration={300}
                 dot={false}
               />
