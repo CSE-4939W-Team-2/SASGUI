@@ -131,15 +131,7 @@ export default function Page(props: Props) {
                         style={{ width: "50px", height: "auto", objectFit: "contain" }}
                     />
                 </div>
-            </div>
-            {/* Image Section */}
-            <div style={{ display: morphology == "/"? "none" : "flex", justifyContent: "center", alignItems: "center", marginTop: "20px" }}>
-                        <img
-                            src={FinalRuler} // Using the imported path
-                            alt="nanometer ruler"
-                            style={{ width: "50px", height: "auto", objectFit: "contain" }}
-                        />
-                    </div>
+            </div>            
         </div>
     );
 }

@@ -65,6 +65,7 @@ export default function ParameterSlider(props:Props){
                     id={props.label} step={props.step} 
                     onChange={handleSliderChange}
                     onMouseUp={handlePerfModeSlider}
+                    onTouchEnd={handlePerfModeSlider}
                     style={{width:"80%"}}/>
                 <input 
                     type="text" 
