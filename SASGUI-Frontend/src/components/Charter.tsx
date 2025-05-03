@@ -35,8 +35,10 @@ class CustomizedAxisTick extends React.Component<{x?: number, y?:number, payload
   }
 }
 export default function Charter(){
-    const morphology = useRecoilValue(currentMorphology);
+    const morphology = useRecoilValue(currentMorphology);//Get morphology
+    //Select either observed curve only, or observed and simulated curve based on whether morphology is selected
     const curveData = morphology==="/"? useRecoilValue(csvCurve):useRecoilValue(curveWithCSVData);
+    //Initial bounds for graph and zoom
     const initialState = {
         data: curveData,
         left: "dataMin",
@@ -49,6 +51,7 @@ export default function Charter(){
         bottom: "dataMin",
         // animation: true,
     };
+    //Update graph when curve updates
     useEffect(() => {
         setState((prev) => ({
             ...prev,
@@ -56,6 +59,7 @@ export default function Charter(){
           }));
           zoomOut();
     },[curveData])
+    //Used for zoom
     const getAxisYDomain = (
         from: number,
         to: number,
@@ -79,6 +83,7 @@ export default function Charter(){
         console.log(bottom, top)
         return [bottom,top];
     };
+    //Set bounds for zoom
     const [state, setState] = useState<{
         data: any;
         left: string;
@@ -150,6 +155,7 @@ export default function Charter(){
             }));
         }
       };
+      //Zoom back out (reset bounds to original values)
       const zoomOut = () => {
         setState((prev) => ({
           data: prev.data.slice(),
@@ -163,6 +169,7 @@ export default function Charter(){
           bottom: "dataMin",
         }));
       };
+      //graph component
       const component = (
         <div className="highlight-bar-charts" style={{ display:"flex", userSelect: "none", width:"70vw", 
         backgroundColor:"#EEEEEE", alignItems:"center", flexDirection:"column"}}>
